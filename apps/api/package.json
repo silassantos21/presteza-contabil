@@ -7,7 +7,7 @@
     "start": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "ts-node prisma/seed.ts",
+    "db:seed": "ts-node -r tsconfig-paths/register prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:push": "prisma db push"
   },
@@ -48,6 +48,7 @@
     "@types/passport-local": "^1.0.38",
     "prisma": "^5.20.0",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5"
   }
 }
