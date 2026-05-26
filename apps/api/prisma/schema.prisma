@@ -1,0 +1,204 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Usuário ──────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN   // Contador / administrador
+  CLIENT  // Cliente do escritório
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(CLIENT)
+  avatarUrl String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  client        Client?       @relation("ClientUser")
+  sentMessages  Message[]     @relation("SentMessages")
+  notifications Notification[]
+  processes     Process[]     @relation("AssignedProcesses")
+  uploadedDocs  Document[]    @relation("UploadedDocuments")
+
+  @@map("users")
+}
+
+// ─── Cliente ──────────────────────────────────────────────────────────────────
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+model Client {
+  id              String       @id @default(cuid())
+  companyName     String
+  tradeName       String?
+  cnpj            String?      @unique
+  cpf             String?      @unique
+  email           String
+  phone           String?
+  status          ClientStatus @default(ACTIVE)
+  responsibleName String
+  notes           String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Usuário de acesso ao portal
+  userId String? @unique
+  user   User?   @relation("ClientUser", fields: [userId], references: [id])
+
+  // Relações
+  conversation  Conversation?
+  documents     Document[]
+  processes     Process[]
+  timeline      TimelineEvent[]
+
+  @@map("clients")
+}
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+
+model Conversation {
+  id        String    @id @default(cuid())
+  clientId  String    @unique
+  client    Client    @relation(fields: [clientId], references: [id])
+  messages  Message[]
+  createdAt DateTime  @default(now())
+
+  @@map("conversations")
+}
+
+enum MessageType {
+  TEXT
+  FILE
+  SYSTEM
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  senderId       String
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id])
+  type           MessageType  @default(TEXT)
+  content        String
+  fileUrl        String?
+  fileName       String?
+  fileSize       Int?
+  createdAt      DateTime     @default(now())
+
+  @@map("messages")
+}
+
+// ─── Documento ────────────────────────────────────────────────────────────────
+
+enum DocumentType {
+  NFSE
+  NFE
+  BOLETO
+  CONTRATO
+  GUIA
+  OUTROS
+}
+
+model Document {
+  id           String       @id @default(cuid())
+  clientId     String
+  client       Client       @relation(fields: [clientId], references: [id])
+  name         String
+  type         DocumentType @default(OUTROS)
+  fileUrl      String
+  fileSize     Int?
+  uploadedById String
+  uploadedBy   User         @relation("UploadedDocuments", fields: [uploadedById], references: [id])
+  createdAt    DateTime     @default(now())
+
+  @@map("documents")
+}
+
+// ─── Processo Contábil ────────────────────────────────────────────────────────
+
+enum ProcessStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum ProcessType {
+  IRPF
+  IRPJ
+  MEI
+  NFE
+  NFSE
+  SPED
+  ECAC
+  OTHER
+}
+
+model Process {
+  id           String        @id @default(cuid())
+  title        String
+  type         ProcessType   @default(OTHER)
+  status       ProcessStatus @default(PENDING)
+  clientId     String
+  client       Client        @relation(fields: [clientId], references: [id])
+  assignedToId String?
+  assignedTo   User?         @relation("AssignedProcesses", fields: [assignedToId], references: [id])
+  dueDate      DateTime?
+  description  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("processes")
+}
+
+// ─── Notificação ──────────────────────────────────────────────────────────────
+
+enum NotificationType {
+  NEW_MESSAGE
+  NEW_DOCUMENT
+  PROCESS_UPDATE
+  SYSTEM
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  type        NotificationType
+  title       String
+  body        String
+  read        Boolean          @default(false)
+  referenceId String?
+  createdAt   DateTime         @default(now())
+
+  @@map("notifications")
+}
+
+// ─── Timeline ─────────────────────────────────────────────────────────────────
+
+model TimelineEvent {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id])
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+
+  @@map("timeline_events")
+}
