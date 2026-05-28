@@ -1,5 +1,5 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter @presteza/types build && pnpm --filter @presteza/web build",
+  "buildCommand": "pnpm --filter @presteza/types build && pnpm --filter @presteza/web build && mkdir -p ../../.vercel && cp -r .vercel/output ../../.vercel/",
   "framework": null
 }
