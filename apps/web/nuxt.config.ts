@@ -46,6 +46,10 @@ export default defineNuxtConfig({
     strict: true,
   },
 
+  experimental: {
+    asyncContext: true,
+  },
+
   vite: {
     // Garante que pacotes de workspace com CJS sejam pré-compilados para ESM
     // pelo esbuild do Vite, evitando "does not provide an export named X".
