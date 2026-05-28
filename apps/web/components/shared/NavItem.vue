@@ -1,15 +1,17 @@
 <template>
   <NuxtLink
     :to="to"
+    :title="collapsed ? label : undefined"
     :class="[
-      'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
+      'flex items-center rounded-lg text-sm transition-all duration-200',
+      collapsed ? 'justify-center p-2' : 'gap-3 px-3 py-2',
       isActive
         ? 'bg-primary text-primary-foreground font-medium'
         : 'text-muted-foreground hover:text-foreground hover:bg-accent',
     ]"
   >
     <component :is="iconComponent" class="w-4 h-4 shrink-0" />
-    {{ label }}
+    <span v-if="!collapsed" class="truncate">{{ label }}</span>
   </NuxtLink>
 </template>
 
@@ -21,6 +23,7 @@ const props = defineProps<{
   icon: string
   label: string
   exact?: boolean
+  collapsed?: boolean
 }>()
 
 const route = useRoute()

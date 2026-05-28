@@ -51,4 +51,37 @@ export class ChatService {
       orderBy: { createdAt: 'desc' },
     })
   }
+
+  async getOrCreateConversationByClientId(clientId: string) {
+    let conversation = await this.prisma.conversation.findUnique({
+      where: { clientId },
+    })
+    if (!conversation) {
+      conversation = await this.prisma.conversation.create({
+        data: { clientId },
+      })
+    }
+    return conversation
+  }
+
+  async getConversationByUserId(userId: string) {
+    // Encontra o cliente vinculado a este usuário e retorna sua conversa
+    const client = await this.prisma.client.findUnique({
+      where: { userId },
+    })
+    if (!client) return null
+
+    let conversation = await this.prisma.conversation.findUnique({
+      where: { clientId: client.id },
+    })
+
+    // Cria a conversa automaticamente se ainda não existir
+    if (!conversation) {
+      conversation = await this.prisma.conversation.create({
+        data: { clientId: client.id },
+      })
+    }
+
+    return conversation
+  }
 }

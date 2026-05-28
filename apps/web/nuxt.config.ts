@@ -1,6 +1,9 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  compatibilityDate: '2024-04-03',
+  // @ts-ignore — compatibilityDate foi adicionado nos tipos do Nuxt 3.12+;
+  // com Nuxt 3.11.2 o campo existe em runtime mas ainda não está nos tipos.
+  compatibilityDate: '2026-05-26',
+  telemetry: false,
 
   modules: [
     '@nuxtjs/tailwindcss',
@@ -9,6 +12,19 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     'shadcn-nuxt',
   ],
+
+  // Desabilita prefixo de pasta no auto-import de componentes.
+  // Sem isso, components/shared/NavItem.vue seria <SharedNavItem> (não <NavItem>).
+  components: [{ path: '~/components', pathPrefix: false }],
+
+  // Aponta o módulo para o nosso CSS que contém @tailwind + variáveis CSS do Shadcn.
+  // viewer: false desabilita o painel visual do Tailwind que sobe um servidor extra
+  // na porta 3001 — a mesma porta da API NestJS — causando conflito de porta e
+  // erro de CORS falso no browser.
+  tailwindcss: {
+    cssPath: '~/assets/css/main.css',
+    viewer: false,
+  },
 
   shadcn: {
     prefix: '',
@@ -28,6 +44,21 @@ export default defineNuxtConfig({
 
   typescript: {
     strict: true,
+  },
+
+  vite: {
+    // Garante que pacotes de workspace com CJS sejam pré-compilados para ESM
+    // pelo esbuild do Vite, evitando "does not provide an export named X".
+    optimizeDeps: {
+      include: ['@presteza/types'],
+    },
+    server: {
+      hmr: {
+        // Força o @vite/client a conectar pelo Nitro (porta 3000) em vez
+        // de tentar a porta interna do Vite (~24678) que o browser não alcança.
+        clientPort: 3000,
+      },
+    },
   },
 
   app: {

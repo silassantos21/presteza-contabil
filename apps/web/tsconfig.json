@@ -1,0 +1,7 @@
+{
+  // Gerado pelo padrão Nuxt 3 — estende os tipos auto-gerados pelo Nuxt
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"]
+  }
+}

@@ -1,10 +1,9 @@
+<template>
+  <div />
+</template>
+
 <script setup lang="ts">
+// O redirect para /admin ou /portal é feito pelo middleware/auth.ts
+// que trata a rota raiz "/" explicitamente.
 definePageMeta({ middleware: 'auth' })
-
-const authStore = useAuthStore()
-authStore.loadFromStorage()
-
-if (authStore.isAdmin) navigateTo('/admin')
-else if (authStore.isClient) navigateTo('/portal')
-else navigateTo('/login')
 </script>

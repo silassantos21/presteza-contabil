@@ -15,6 +15,12 @@ export class NotificationsController {
     return this.notificationsService.findByUser(req.user.sub)
   }
 
+  @Get('unread-count')
+  async countUnread(@Request() req) {
+    const count = await this.notificationsService.countUnread(req.user.sub)
+    return { count }
+  }
+
   @Patch('read-all')
   markAllRead(@Request() req) {
     return this.notificationsService.markAllRead(req.user.sub)
