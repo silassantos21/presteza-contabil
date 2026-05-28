@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm build:types && cd apps/web && npm run build",
+  "buildCommand": "pnpm --filter @presteza/types build && cd apps/web && npm run build",
   "outputDirectory": "apps/web/.vercel/output",
   "framework": null
 }
