@@ -50,6 +50,21 @@ export default defineNuxtConfig({
     asyncContext: true,
   },
 
+  nitro: {
+    externals: {
+      inline: [
+        'unctx',
+        'vue',
+        '@vue/runtime-core',
+        '@vue/runtime-dom',
+        '@vue/reactivity',
+        '@vue/shared',
+        '@vue/server-renderer',
+        'vue-bundle-renderer',
+      ],
+    },
+  },
+
   vite: {
     // Garante que pacotes de workspace com CJS sejam pré-compilados para ESM
     // pelo esbuild do Vite, evitando "does not provide an export named X".
