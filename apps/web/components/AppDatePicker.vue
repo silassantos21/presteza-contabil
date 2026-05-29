@@ -4,7 +4,7 @@
     <button
       type="button"
       @click="isOpen = !isOpen"
-      class="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md bg-background transition-colors text-left focus:outline-none focus:ring-2 focus:ring-ring"
+      class="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md bg-background transition-colors text-left focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
       :class="hasError ? 'border border-destructive' : 'border border-border'"
     >
       <CalendarIcon class="w-4 h-4 text-muted-foreground shrink-0" />
@@ -24,14 +24,15 @@
     >
       <div
         v-if="isOpen"
-        class="absolute z-50 mt-1 bg-card border border-border rounded-xl shadow-xl p-4 w-72 origin-top-left"
+        class="absolute z-50 mt-1 bg-card border border-border rounded-xl shadow-xl p-4 w-72 max-w-[calc(100vw-2rem)] origin-top-left
+               left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0"
       >
         <!-- Cabeçalho: mês + ano + navegação -->
         <div class="flex items-center justify-between mb-4">
           <button
             type="button"
             @click="prevMonth"
-            class="p-1.5 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+            class="p-2 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px] flex items-center justify-center"
           >
             <ChevronLeft class="w-4 h-4" />
           </button>
@@ -41,7 +42,7 @@
           <button
             type="button"
             @click="nextMonth"
-            class="p-1.5 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+            class="p-2 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px] flex items-center justify-center"
           >
             <ChevronRight class="w-4 h-4" />
           </button>
@@ -66,7 +67,7 @@
             type="button"
             :disabled="day.disabled"
             @click="day.date && !day.disabled && selectDay(day.date)"
-            class="h-8 w-8 mx-auto flex items-center justify-center rounded-lg text-sm transition-colors select-none"
+            class="h-9 w-9 mx-auto flex items-center justify-center rounded-lg text-sm transition-colors select-none"
             :class="dayClass(day)"
           >
             {{ day.day }}

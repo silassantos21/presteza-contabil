@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 space-y-6">
+  <div class="p-4 sm:p-6 space-y-6">
     <div>
       <h1 class="text-2xl font-bold">Meus processos</h1>
       <p class="text-muted-foreground text-sm mt-1">Acompanhe o andamento dos seus processos contábeis</p>
@@ -28,33 +28,33 @@
             <div
               v-for="proc in group.items"
               :key="proc.id"
-              class="rounded-lg border border-border bg-card p-4 flex items-start gap-4"
+              class="rounded-lg border border-border bg-card p-4 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4"
             >
-              <!-- Ícone de tipo -->
-              <div class="p-2 bg-muted rounded-md shrink-0 mt-0.5">
-                <Briefcase class="w-4 h-4 text-muted-foreground" />
-              </div>
-
-              <!-- Informações -->
-              <div class="flex-1 min-w-0 space-y-1">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <p class="text-sm font-medium">{{ proc.title }}</p>
-                  <span class="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">{{ proc.type }}</span>
+              <!-- Ícone + infos -->
+              <div class="flex items-start gap-3 flex-1 min-w-0">
+                <div class="p-2 bg-muted rounded-md shrink-0 mt-0.5">
+                  <Briefcase class="w-4 h-4 text-muted-foreground" />
                 </div>
-                <p v-if="proc.description" class="text-xs text-muted-foreground line-clamp-2">{{ proc.description }}</p>
-                <div class="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-                  <span>Criado em {{ formatDate(proc.createdAt) }}</span>
-                  <span v-if="proc.dueDate" :class="isOverdue(proc.dueDate) && proc.status !== 'DONE' ? 'text-destructive font-medium' : ''">
-                    Vencimento: {{ formatDate(proc.dueDate) }}
-                  </span>
-                  <span v-if="proc.assignedTo">
-                    Responsável: {{ proc.assignedTo.name }}
-                  </span>
+                <div class="flex-1 min-w-0 space-y-1">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <p class="text-sm font-medium">{{ proc.title }}</p>
+                    <span class="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">{{ proc.type }}</span>
+                  </div>
+                  <p v-if="proc.description" class="text-xs text-muted-foreground line-clamp-2">{{ proc.description }}</p>
+                  <div class="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+                    <span>Criado em {{ formatDate(proc.createdAt) }}</span>
+                    <span v-if="proc.dueDate" :class="isOverdue(proc.dueDate) && proc.status !== 'DONE' ? 'text-destructive font-medium' : ''">
+                      Vencimento: {{ formatDate(proc.dueDate) }}
+                    </span>
+                    <span v-if="proc.assignedTo">
+                      Responsável: {{ proc.assignedTo.name }}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               <!-- Badge status -->
-              <span :class="statusClass(proc.status)" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
+              <span :class="statusClass(proc.status)" class="text-xs px-2 py-0.5 rounded-full font-medium self-start sm:shrink-0">
                 {{ statusLabel(proc.status) }}
               </span>
             </div>

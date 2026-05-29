@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 space-y-6">
+  <div class="p-4 sm:p-6 space-y-6">
     <div>
       <h1 class="text-2xl font-bold">Relatórios</h1>
       <p class="text-muted-foreground text-sm mt-1">Gere relatórios em PDF para processos e clientes</p>
@@ -22,7 +22,7 @@
         <button
           @click="downloadProcesses"
           :disabled="loadingProcesses"
-          class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 px-4 py-2 rounded-md text-sm font-medium transition-colors min-h-[44px]"
         >
           <Loader2 v-if="loadingProcesses" class="w-4 h-4 animate-spin" />
           <FileDown v-else class="w-4 h-4" />
@@ -50,7 +50,7 @@
           <input
             v-model="clientSearch"
             placeholder="Buscar cliente..."
-            class="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+            class="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
           />
         </div>
 
@@ -65,7 +65,7 @@
           <div
             v-for="client in filteredClients"
             :key="client.id"
-            class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-colors"
+            class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-colors min-h-[44px]"
           >
             <div class="min-w-0">
               <p class="text-sm font-medium truncate">{{ client.companyName }}</p>

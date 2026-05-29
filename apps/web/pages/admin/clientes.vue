@@ -1,112 +1,156 @@
 <template>
-  <div class="p-6 space-y-6">
+  <div class="p-4 sm:p-6 space-y-6">
     <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold">Clientes</h1>
-        <p class="text-muted-foreground text-sm mt-1">Gerencie os clientes do escritório</p>
-      </div>
+      <h1 class="text-2xl font-bold">Clientes</h1>
       <button
         @click="openCreate"
-        class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+        class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium transition-colors min-h-[44px]"
       >
         <Plus class="w-4 h-4" />
-        Novo cliente
+        <span class="hidden sm:inline">Novo cliente</span>
       </button>
     </div>
 
     <!-- Busca -->
-    <div class="relative max-w-xs">
+    <div class="relative w-full sm:max-w-xs">
       <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
       <input
         v-model="searchQuery"
         placeholder="Buscar por nome ou e-mail..."
-        class="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+        class="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
       />
     </div>
 
-    <!-- Tabela -->
-    <div class="rounded-lg border border-border bg-card overflow-hidden">
-      <div v-if="loading" class="p-8 text-center text-sm text-muted-foreground">Carregando clientes...</div>
-      <div v-else-if="!filteredClients.length" class="p-8 text-center text-sm text-muted-foreground">Nenhum cliente encontrado.</div>
-      <table v-else class="w-full text-sm">
-        <thead class="border-b border-border bg-muted/40">
-          <tr>
-            <th class="text-left px-4 py-3 font-medium text-muted-foreground">Empresa</th>
-            <th class="text-left px-4 py-3 font-medium text-muted-foreground">Responsável</th>
-            <th class="text-left px-4 py-3 font-medium text-muted-foreground">E-mail</th>
-            <th class="text-left px-4 py-3 font-medium text-muted-foreground">Contato</th>
-            <th class="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
-            <th class="text-left px-4 py-3 font-medium text-muted-foreground">Portal</th>
-            <th class="px-4 py-3"></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr v-for="client in filteredClients" :key="client.id" class="hover:bg-muted/30 transition-colors">
-            <td class="px-4 py-3">
+    <!-- Estado vazio / loading -->
+    <div v-if="loading" class="p-8 text-center text-sm text-muted-foreground">Carregando clientes...</div>
+    <div v-else-if="!filteredClients.length" class="p-8 text-center text-sm text-muted-foreground">Nenhum cliente encontrado.</div>
+
+    <template v-else>
+      <!-- Cards mobile -->
+      <div class="block sm:hidden space-y-2">
+        <div
+          v-for="client in filteredClients"
+          :key="client.id"
+          class="rounded-lg border border-border bg-card overflow-hidden"
+        >
+          <button
+            class="w-full flex items-center gap-3 px-4 py-3 text-left"
+            @click="expandedClientId = expandedClientId === client.id ? null : client.id"
+          >
+            <div class="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+              <span class="text-primary font-semibold text-sm">{{ client.companyName.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate">{{ client.companyName }}</p>
+              <p class="text-xs text-muted-foreground truncate">{{ client.responsibleName }}</p>
+            </div>
+            <span :class="statusClass(client.status)" class="text-xs px-2.5 py-1 rounded-full font-medium shrink-0">{{ statusLabel(client.status) }}</span>
+            <ChevronDown
+              class="w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200"
+              :class="expandedClientId === client.id ? 'rotate-180' : ''"
+            />
+          </button>
+          <div v-if="expandedClientId === client.id" class="px-4 pb-4 border-t border-border pt-3 space-y-3">
+            <div class="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <p class="font-medium">{{ client.companyName }}</p>
-                <p v-if="client.tradeName" class="text-xs text-muted-foreground">{{ client.tradeName }}</p>
+                <p class="text-xs text-muted-foreground">E-mail</p>
+                <p class="font-medium truncate">{{ client.email }}</p>
               </div>
-            </td>
-            <td class="px-4 py-3 text-muted-foreground">{{ client.responsibleName }}</td>
-            <td class="px-4 py-3 text-muted-foreground">{{ client.email }}</td>
-            <td class="px-4 py-3 text-muted-foreground">{{ client.phone || '—' }}</td>
-            <td class="px-4 py-3">
-              <span :class="statusClass(client.status)" class="text-xs px-2.5 py-1 rounded-full font-medium">
-                {{ statusLabel(client.status) }}
-              </span>
-            </td>
-            <!-- Coluna Portal -->
-            <td class="px-4 py-3">
-              <button
-                v-if="client.user"
-                title="Acesso ao portal ativo"
-                class="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400 cursor-default"
-              >
-                <ShieldCheck class="w-4 h-4" />
-                <span class="hidden lg:inline truncate max-w-[120px]">{{ client.user.email }}</span>
-              </button>
-              <button
-                v-else
-                @click="openPortalAccess(client)"
-                title="Criar acesso ao portal"
-                class="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
-              >
-                <ShieldOff class="w-4 h-4" />
-                <span class="hidden lg:inline">Criar acesso</span>
-              </button>
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2 justify-end">
-                <button
-                  @click="downloadClientPdf(client)"
-                  :disabled="downloadingPdfId === client.id"
-                  title="Gerar extrato PDF"
-                  class="p-1.5 rounded hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary disabled:opacity-40"
-                >
-                  <Loader2 v-if="downloadingPdfId === client.id" class="w-4 h-4 animate-spin" />
-                  <FileText v-else class="w-4 h-4" />
-                </button>
-                <button
-                  @click="openClientChat(client)"
-                  :disabled="chatOpeningId === client.id"
-                  title="Abrir chat"
-                  class="p-1.5 rounded hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary disabled:opacity-40"
-                >
-                  <MessageSquare class="w-4 h-4" />
-                </button>
-                <button @click="openEdit(client)" title="Editar" class="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-                  <Pencil class="w-4 h-4" />
-                </button>
-                <button @click="confirmDelete(client)" title="Excluir" class="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
-                  <Trash2 class="w-4 h-4" />
-                </button>
+              <div>
+                <p class="text-xs text-muted-foreground">Contato</p>
+                <p class="font-medium">{{ client.phone || '—' }}</p>
               </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              <div v-if="client.cnpj || client.cpf">
+                <p class="text-xs text-muted-foreground">{{ client.cnpj ? 'CNPJ' : 'CPF' }}</p>
+                <p class="font-medium text-xs font-mono">{{ client.cnpj || client.cpf }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-muted-foreground">Portal</p>
+                <p v-if="client.user" class="font-medium text-xs text-green-600 dark:text-green-400 truncate">{{ client.user.email }}</p>
+                <button v-else @click="openPortalAccess(client)" class="text-xs text-primary hover:underline">Criar acesso</button>
+              </div>
+            </div>
+            <div class="flex gap-1.5 justify-end border-t border-border pt-3">
+              <button @click="downloadClientPdf(client)" :disabled="downloadingPdfId === client.id" title="Extrato PDF" class="p-2 rounded hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary disabled:opacity-40">
+                <Loader2 v-if="downloadingPdfId === client.id" class="w-4 h-4 animate-spin" />
+                <FileText v-else class="w-4 h-4" />
+              </button>
+              <button @click="openClientChat(client)" :disabled="chatOpeningId === client.id" title="Chat" class="p-2 rounded hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary disabled:opacity-40">
+                <MessageSquare class="w-4 h-4" />
+              </button>
+              <button @click="openEdit(client)" title="Editar" class="p-2 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                <Pencil class="w-4 h-4" />
+              </button>
+              <button @click="confirmDelete(client)" title="Excluir" class="p-2 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+                <Trash2 class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela desktop -->
+      <div class="hidden sm:block rounded-lg border border-border bg-card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="border-b border-border bg-muted/40">
+              <tr>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Empresa</th>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Responsável</th>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">E-mail</th>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Contato</th>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Portal</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              <tr v-for="client in filteredClients" :key="client.id" class="hover:bg-muted/30 transition-colors">
+                <td class="px-4 py-3">
+                  <div>
+                    <p class="font-medium">{{ client.companyName }}</p>
+                    <p v-if="client.tradeName" class="text-xs text-muted-foreground">{{ client.tradeName }}</p>
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">{{ client.responsibleName }}</td>
+                <td class="px-4 py-3 text-muted-foreground">{{ client.email }}</td>
+                <td class="px-4 py-3 text-muted-foreground">{{ client.phone || '—' }}</td>
+                <td class="px-4 py-3">
+                  <span :class="statusClass(client.status)" class="text-xs px-2.5 py-1 rounded-full font-medium">{{ statusLabel(client.status) }}</span>
+                </td>
+                <td class="px-4 py-3">
+                  <button v-if="client.user" title="Acesso ao portal ativo" class="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400 cursor-default">
+                    <ShieldCheck class="w-4 h-4" />
+                    <span class="hidden lg:inline truncate max-w-[120px]">{{ client.user.email }}</span>
+                  </button>
+                  <button v-else @click="openPortalAccess(client)" title="Criar acesso ao portal" class="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors">
+                    <ShieldOff class="w-4 h-4" />
+                    <span class="hidden lg:inline">Criar acesso</span>
+                  </button>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-2 justify-end">
+                    <button @click="downloadClientPdf(client)" :disabled="downloadingPdfId === client.id" title="Gerar extrato PDF" class="p-1.5 rounded hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary disabled:opacity-40">
+                      <Loader2 v-if="downloadingPdfId === client.id" class="w-4 h-4 animate-spin" />
+                      <FileText v-else class="w-4 h-4" />
+                    </button>
+                    <button @click="openClientChat(client)" :disabled="chatOpeningId === client.id" title="Abrir chat" class="p-1.5 rounded hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary disabled:opacity-40">
+                      <MessageSquare class="w-4 h-4" />
+                    </button>
+                    <button @click="openEdit(client)" title="Editar" class="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                      <Pencil class="w-4 h-4" />
+                    </button>
+                    <button @click="confirmDelete(client)" title="Excluir" class="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+                      <Trash2 class="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </template>
 
     <!-- ── Modal criar / editar cliente ───────────────────────────────────── -->
     <Teleport to="body">
@@ -123,31 +167,31 @@
               <input v-model="form.companyName" @blur="touch('companyName')" :class="fieldClass('companyName')" class="input-field w-full" placeholder="Ex: Empresa LTDA" />
               <p v-if="errors.companyName" class="text-xs text-destructive">{{ errors.companyName }}</p>
             </div>
-            <div class="space-y-1.5">
+            <div class="col-span-2 sm:col-span-1 space-y-1.5">
               <label class="text-sm font-medium">Nome fantasia</label>
               <input v-model="form.tradeName" class="input-field w-full" placeholder="Nome fantasia" />
             </div>
-            <div class="space-y-1.5">
+            <div class="col-span-2 sm:col-span-1 space-y-1.5">
               <label class="text-sm font-medium">Responsável <span class="text-destructive">*</span></label>
               <input v-model="form.responsibleName" @blur="touch('responsibleName')" :class="fieldClass('responsibleName')" class="input-field w-full" placeholder="Nome do responsável" />
               <p v-if="errors.responsibleName" class="text-xs text-destructive">{{ errors.responsibleName }}</p>
             </div>
-            <div class="space-y-1.5">
+            <div class="col-span-2 sm:col-span-1 space-y-1.5">
               <label class="text-sm font-medium">CNPJ <span v-if="!form.cpf" class="text-destructive">*</span></label>
               <input :value="form.cnpj" @input="onCNPJInput" @blur="touch('cnpj')" :class="fieldClass('cnpj')" class="input-field w-full" placeholder="00.000.000/0000-00" inputmode="numeric" />
               <p v-if="errors.cnpj" class="text-xs text-destructive">{{ errors.cnpj }}</p>
             </div>
-            <div class="space-y-1.5">
+            <div class="col-span-2 sm:col-span-1 space-y-1.5">
               <label class="text-sm font-medium">CPF <span v-if="!form.cnpj" class="text-destructive">*</span></label>
               <input :value="form.cpf" @input="onCPFInput" @blur="touch('cpf')" :class="fieldClass('cpf')" class="input-field w-full" placeholder="000.000.000-00" inputmode="numeric" />
               <p v-if="errors.cpf" class="text-xs text-destructive">{{ errors.cpf }}</p>
             </div>
-            <div class="space-y-1.5">
+            <div class="col-span-2 sm:col-span-1 space-y-1.5">
               <label class="text-sm font-medium">E-mail <span class="text-destructive">*</span></label>
               <input v-model="form.email" type="email" @blur="touch('email')" :class="fieldClass('email')" class="input-field w-full" placeholder="email@empresa.com" />
               <p v-if="errors.email" class="text-xs text-destructive">{{ errors.email }}</p>
             </div>
-            <div class="space-y-1.5">
+            <div class="col-span-2 sm:col-span-1 space-y-1.5">
               <label class="text-sm font-medium">Contato</label>
               <input :value="form.phone" @input="onPhoneInput" @blur="touch('phone')" :class="fieldClass('phone')" class="input-field w-full" placeholder="(11) 99999-9999" inputmode="numeric" />
               <p v-if="errors.phone" class="text-xs text-destructive">{{ errors.phone }}</p>
@@ -257,7 +301,7 @@
 </template>
 
 <script setup lang="ts">
-import { Plus, Search, Pencil, Trash2, X, ShieldCheck, ShieldOff, Eye, EyeOff, MessageSquare, FileText, Loader2 } from 'lucide-vue-next'
+import { Plus, Search, Pencil, Trash2, X, ShieldCheck, ShieldOff, Eye, EyeOff, MessageSquare, FileText, Loader2, ChevronDown } from 'lucide-vue-next'
 
 definePageMeta({ layout: 'admin', middleware: 'auth' })
 
@@ -268,6 +312,7 @@ const { maskCPF, maskCNPJ, maskPhone, isValidEmail, isCompleteCPF, isCompleteCNP
 const loading = ref(true)
 const clients = ref<any[]>([])
 const searchQuery = ref('')
+const expandedClientId = ref<string | null>(null)
 
 // ── Modal cliente ─────────────────────────────────────────────────────────
 const showModal = ref(false)

@@ -1,7 +1,13 @@
 <template>
   <div class="flex h-full">
     <!-- ── Coluna esquerda: lista de conversas ──────────────────────────── -->
-    <aside class="w-[300px] shrink-0 border-r border-border flex flex-col bg-card">
+    <aside
+      class="shrink-0 border-r border-border flex flex-col bg-card"
+      :class="[
+        'w-full sm:w-[300px]',
+        mobileView === 'list' ? 'flex' : 'hidden sm:flex',
+      ]"
+    >
       <!-- Cabeçalho -->
       <div class="px-4 py-4 border-b border-border">
         <h2 class="font-semibold text-base">Conversas</h2>
@@ -78,7 +84,10 @@
     </aside>
 
     <!-- ── Coluna direita: janela de chat ───────────────────────────────── -->
-    <div class="flex flex-col flex-1 min-w-0">
+    <div
+      class="flex-col flex-1 min-w-0"
+      :class="mobileView === 'chat' ? 'flex' : 'hidden sm:flex'"
+    >
       <!-- Sem conversa selecionada -->
       <div
         v-if="!chatStore.activeConversationId"
@@ -92,8 +101,16 @@
       <template v-else>
         <!-- Topbar da conversa -->
         <div
-          class="flex items-center gap-3 px-5 py-3 border-b border-border bg-card shrink-0"
+          class="flex items-center gap-3 px-4 sm:px-5 py-3 border-b border-border bg-card shrink-0"
         >
+          <!-- Botão voltar (mobile only) -->
+          <button
+            @click="mobileView = 'list'"
+            class="sm:hidden p-2 -ml-1 rounded-md hover:bg-accent transition-colors text-muted-foreground"
+            aria-label="Voltar para conversas"
+          >
+            <ArrowLeft class="w-5 h-5" />
+          </button>
           <div
             class="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center"
           >
@@ -152,7 +169,7 @@
 </template>
 
 <script setup lang="ts">
-import { MessageSquare, Users, Download } from 'lucide-vue-next'
+import { MessageSquare, Users, Download, ArrowLeft } from 'lucide-vue-next'
 import { format, isToday, isYesterday } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -161,6 +178,7 @@ definePageMeta({ layout: 'admin', middleware: 'auth' })
 const authStore = useAuthStore()
 const chatStore = useChatStore()
 const route = useRoute()
+const mobileView = ref<'list' | 'chat'>('list')
 
 // ── Inicialização ──────────────────────────────────────────────────────────
 onMounted(async () => {
@@ -179,6 +197,7 @@ onUnmounted(() => {
 
 // ── Ações ──────────────────────────────────────────────────────────────────
 async function selectConversation(id: string) {
+  mobileView.value = 'chat'
   if (chatStore.activeConversationId === id) return
   await chatStore.openConversation(id)
 }

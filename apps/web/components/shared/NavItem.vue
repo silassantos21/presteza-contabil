@@ -3,7 +3,7 @@
     :to="to"
     :title="collapsed ? label : undefined"
     :class="[
-      'flex items-center rounded-lg text-sm transition-all duration-200',
+      'flex items-center rounded-lg text-sm transition-all duration-200 min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
       collapsed ? 'justify-center p-2' : 'gap-3 px-3 py-2',
       isActive
         ? 'bg-primary text-primary-foreground font-medium'

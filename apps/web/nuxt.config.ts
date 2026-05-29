@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   // @ts-ignore — compatibilityDate foi adicionado nos tipos do Nuxt 3.12+;
   // com Nuxt 3.11.2 o campo existe em runtime mas ainda não está nos tipos.
   compatibilityDate: '2026-05-26',

@@ -34,7 +34,7 @@ const props = withDefaults(
     disabled?: boolean
   }>(),
   {
-    placeholder: 'Digite uma mensagem… (Enter para enviar)',
+    placeholder: 'Digite aqui...',
     disabled: false,
   },
 )

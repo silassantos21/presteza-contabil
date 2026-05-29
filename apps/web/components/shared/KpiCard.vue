@@ -1,11 +1,11 @@
 <template>
-  <div class="rounded-lg border border-border bg-card p-4 flex items-center gap-4">
-    <div :class="['w-10 h-10 rounded-lg flex items-center justify-center shrink-0', bgClass]">
+  <div class="rounded-lg border border-border bg-card p-5 flex flex-col items-center text-center gap-3">
+    <div :class="['w-11 h-11 rounded-xl flex items-center justify-center shrink-0', bgClass]">
       <component :is="iconComponent" :class="['w-5 h-5', iconClass]" />
     </div>
     <div>
-      <p class="text-2xl font-bold">{{ value }}</p>
-      <p class="text-xs text-muted-foreground">{{ label }}</p>
+      <p class="text-3xl font-bold leading-tight">{{ value }}</p>
+      <p class="text-xs text-muted-foreground mt-0.5">{{ label }}</p>
     </div>
   </div>
 </template>

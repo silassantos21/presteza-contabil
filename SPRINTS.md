@@ -131,8 +131,9 @@
 
 ---
 
-## ⏳ Sprint 7 — Responsividade e versão mobile
-**Status:** Pendente
+## ✅ Sprint 7 — Responsividade e versão mobile
+**Status:** Concluída
+**Data conclusão:** 29/05/2026
 
 ### Objetivo
 Adaptar todas as páginas e layouts para funcionar corretamente em dispositivos móveis e telas pequenas, priorizando o portal do cliente (mais provável de ser acessado via celular).

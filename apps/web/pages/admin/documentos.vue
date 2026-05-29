@@ -1,101 +1,141 @@
 <template>
-  <div class="p-6 space-y-6">
+  <div class="p-4 sm:p-6 space-y-6">
     <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold">Documentos</h1>
-        <p class="text-muted-foreground text-sm mt-1">Gerencie os documentos dos clientes</p>
-      </div>
+      <h1 class="text-2xl font-bold">Documentos</h1>
       <button
         @click="openUploadModal"
-        class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+        class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium transition-colors min-h-[44px]"
       >
         <Upload class="w-4 h-4" />
-        Enviar documento
+        <span class="hidden sm:inline">Enviar documento</span>
       </button>
     </div>
 
     <!-- Filtro por cliente -->
-    <div class="flex items-center gap-3">
-      <div class="relative flex-1 max-w-xs">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+      <div class="relative flex-1 sm:max-w-xs">
         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           v-model="searchQuery"
           placeholder="Buscar por nome..."
-          class="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+          class="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
         />
       </div>
       <select
         v-model="selectedClientId"
         @change="fetchDocuments"
-        class="text-sm border border-border rounded-md bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+        class="w-full sm:w-auto text-sm border border-border rounded-md bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
       >
         <option value="">Todos os clientes</option>
         <option v-for="c in clients" :key="c.id" :value="c.id">{{ c.companyName }}</option>
       </select>
     </div>
 
-    <!-- Tabela -->
-    <div class="rounded-lg border border-border bg-card overflow-hidden">
-      <div v-if="loading" class="p-8 text-center text-sm text-muted-foreground">
-        Carregando documentos...
-      </div>
-      <div v-else-if="!filteredDocuments.length" class="p-8 text-center text-sm text-muted-foreground">
-        Nenhum documento encontrado.
-      </div>
-      <table v-else class="w-full text-sm">
-        <thead class="border-b border-border bg-muted/40">
-          <tr>
-            <th class="text-left px-4 py-3 font-medium text-muted-foreground">Nome</th>
-            <th class="text-left px-4 py-3 font-medium text-muted-foreground">Tipo</th>
-            <th class="text-left px-4 py-3 font-medium text-muted-foreground">Tamanho</th>
-            <th class="text-left px-4 py-3 font-medium text-muted-foreground">Enviado por</th>
-            <th class="text-left px-4 py-3 font-medium text-muted-foreground">Data</th>
-            <th class="px-4 py-3"></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr
-            v-for="doc in filteredDocuments"
-            :key="doc.id"
-            class="hover:bg-muted/30 transition-colors"
+    <!-- Estado vazio / loading -->
+    <div v-if="loading" class="p-8 text-center text-sm text-muted-foreground">Carregando documentos...</div>
+    <div v-else-if="!filteredDocuments.length" class="p-8 text-center text-sm text-muted-foreground">Nenhum documento encontrado.</div>
+
+    <template v-else>
+      <!-- Cards mobile -->
+      <div class="block sm:hidden space-y-2">
+        <div
+          v-for="doc in filteredDocuments"
+          :key="doc.id"
+          class="rounded-lg border border-border bg-card overflow-hidden"
+        >
+          <button
+            class="w-full flex items-center gap-3 px-4 py-3 text-left"
+            @click="expandedDocId = expandedDocId === doc.id ? null : doc.id"
           >
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <FileText class="w-4 h-4 text-muted-foreground shrink-0" />
-                <span class="truncate max-w-[220px]" :title="doc.name">{{ doc.name }}</span>
+            <FileText class="w-5 h-5 text-muted-foreground shrink-0" />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate">{{ doc.name }}</p>
+              <p class="text-xs text-muted-foreground">{{ formatSize(doc.fileSize) }}</p>
+            </div>
+            <span :class="typeClass(doc.type)" class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0">{{ doc.type }}</span>
+            <ChevronDown
+              class="w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200"
+              :class="expandedDocId === doc.id ? 'rotate-180' : ''"
+            />
+          </button>
+          <div v-if="expandedDocId === doc.id" class="px-4 pb-4 border-t border-border pt-3 space-y-3">
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p class="text-xs text-muted-foreground">Enviado por</p>
+                <p class="font-medium">{{ doc.uploadedBy?.name ?? '—' }}</p>
               </div>
-            </td>
-            <td class="px-4 py-3">
-              <span :class="typeClass(doc.type)" class="text-xs px-2 py-0.5 rounded-full font-medium">
-                {{ doc.type }}
-              </span>
-            </td>
-            <td class="px-4 py-3 text-muted-foreground">{{ formatSize(doc.fileSize) }}</td>
-            <td class="px-4 py-3 text-muted-foreground">{{ doc.uploadedBy?.name ?? '—' }}</td>
-            <td class="px-4 py-3 text-muted-foreground">{{ formatDate(doc.createdAt) }}</td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2 justify-end">
-                <button
-                  @click="downloadDoc(doc)"
-                  :disabled="downloading === doc.id"
-                  title="Download"
-                  class="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50"
-                >
-                  <Download class="w-4 h-4" />
-                </button>
-                <button
-                  @click="confirmDelete(doc)"
-                  title="Excluir"
-                  class="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
-                >
-                  <Trash2 class="w-4 h-4" />
-                </button>
+              <div>
+                <p class="text-xs text-muted-foreground">Data</p>
+                <p class="font-medium">{{ formatDate(doc.createdAt) }}</p>
               </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            </div>
+            <div class="flex gap-2 justify-end border-t border-border pt-3">
+              <button
+                @click="downloadDoc(doc)"
+                :disabled="downloading === doc.id"
+                title="Download"
+                class="flex items-center gap-1.5 px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
+              >
+                <Download class="w-4 h-4" />
+                Download
+              </button>
+              <button
+                @click="confirmDelete(doc)"
+                title="Excluir"
+                class="flex items-center gap-1.5 px-3 py-2 rounded-md hover:bg-destructive/10 transition-colors text-sm text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 class="w-4 h-4" />
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela desktop -->
+      <div class="hidden sm:block rounded-lg border border-border bg-card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="border-b border-border bg-muted/40">
+              <tr>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Nome</th>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Tipo</th>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Tamanho</th>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Enviado por</th>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Data</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              <tr v-for="doc in filteredDocuments" :key="doc.id" class="hover:bg-muted/30 transition-colors">
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-2">
+                    <FileText class="w-4 h-4 text-muted-foreground shrink-0" />
+                    <span class="truncate max-w-[220px]" :title="doc.name">{{ doc.name }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3">
+                  <span :class="typeClass(doc.type)" class="text-xs px-2 py-0.5 rounded-full font-medium">{{ doc.type }}</span>
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">{{ formatSize(doc.fileSize) }}</td>
+                <td class="px-4 py-3 text-muted-foreground">{{ doc.uploadedBy?.name ?? '—' }}</td>
+                <td class="px-4 py-3 text-muted-foreground">{{ formatDate(doc.createdAt) }}</td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-2 justify-end">
+                    <button @click="downloadDoc(doc)" :disabled="downloading === doc.id" title="Download" class="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50">
+                      <Download class="w-4 h-4" />
+                    </button>
+                    <button @click="confirmDelete(doc)" title="Excluir" class="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+                      <Trash2 class="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </template>
 
     <!-- Modal Upload -->
     <Teleport to="body">
@@ -206,7 +246,7 @@
 </template>
 
 <script setup lang="ts">
-import { Upload, Search, FileText, Download, Trash2, X } from 'lucide-vue-next'
+import { Upload, Search, FileText, Download, Trash2, X, ChevronDown } from 'lucide-vue-next'
 
 definePageMeta({ layout: 'admin', middleware: 'auth' })
 
@@ -222,6 +262,7 @@ const searchQuery = ref('')
 const downloading = ref<string | null>(null)
 const deleting = ref(false)
 const docToDelete = ref<any>(null)
+const expandedDocId = ref<string | null>(null)
 
 const showUploadModal = ref(false)
 const dragOver = ref(false)

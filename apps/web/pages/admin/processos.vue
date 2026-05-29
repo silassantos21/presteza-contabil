@@ -1,40 +1,36 @@
 <template>
-  <div class="p-6 space-y-6">
+  <div class="p-4 sm:p-6 space-y-6">
     <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold">Processos</h1>
-        <p class="text-muted-foreground text-sm mt-1">Acompanhe e gerencie os processos contábeis</p>
-      </div>
+      <h1 class="text-2xl font-bold">Processos</h1>
       <button
         @click="openCreate"
-        class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+        class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium transition-colors min-h-[44px]"
       >
         <Plus class="w-4 h-4" />
-        Novo processo
+        <span class="hidden sm:inline">Novo processo</span>
       </button>
     </div>
 
     <!-- Filtros -->
-    <div class="flex items-center gap-3 flex-wrap">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
       <div class="relative">
         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           v-model="searchQuery"
           placeholder="Buscar por título..."
-          class="pl-9 pr-4 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring w-52"
+          class="pl-9 pr-4 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring w-full sm:w-52 min-h-[44px]"
         />
       </div>
       <select
         v-model="filterClientId"
-        class="text-sm border border-border rounded-md bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+        class="w-full sm:w-auto text-sm border border-border rounded-md bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
       >
         <option value="">Todos os clientes</option>
         <option v-for="c in clients" :key="c.id" :value="c.id">{{ c.companyName }}</option>
       </select>
-      <!-- Task 5: filtro por tipo -->
       <select
         v-model="filterType"
-        class="text-sm border border-border rounded-md bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+        class="w-full sm:w-auto text-sm border border-border rounded-md bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
       >
         <option value="">Todos os tipos</option>
         <option v-for="t in processTypes" :key="t" :value="t">{{ t }}</option>
@@ -121,17 +117,10 @@
               <input v-model="form.title" class="input-field w-full" placeholder="Ex: IRPJ 2025" />
             </div>
             <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-1.5">
+              <div :class="editingProcess ? '' : 'col-span-2'" class="space-y-1.5">
                 <label class="text-sm font-medium">Tipo <span class="text-destructive">*</span></label>
                 <select v-model="form.type" class="input-field w-full">
                   <option v-for="t in processTypes" :key="t" :value="t">{{ t }}</option>
-                </select>
-              </div>
-              <div class="space-y-1.5">
-                <label class="text-sm font-medium">Cliente <span class="text-destructive">*</span></label>
-                <select v-model="form.clientId" class="input-field w-full">
-                  <option value="" disabled>Selecione</option>
-                  <option v-for="c in clients" :key="c.id" :value="c.id">{{ c.companyName }}</option>
                 </select>
               </div>
               <div v-if="editingProcess" class="space-y-1.5">
@@ -143,8 +132,14 @@
                   <option value="CANCELLED">Cancelado</option>
                 </select>
               </div>
-              <!-- Task 2: date picker moderno com restrição de data futura -->
-              <div class="space-y-1.5">
+              <div class="col-span-2 sm:col-span-1 space-y-1.5">
+                <label class="text-sm font-medium">Cliente <span class="text-destructive">*</span></label>
+                <select v-model="form.clientId" class="input-field w-full">
+                  <option value="" disabled>Selecione</option>
+                  <option v-for="c in clients" :key="c.id" :value="c.id">{{ c.companyName }}</option>
+                </select>
+              </div>
+              <div class="col-span-2 sm:col-span-1 space-y-1.5">
                 <label class="text-sm font-medium">Vencimento</label>
                 <AppDatePicker v-model="form.dueDate" :min="today" />
               </div>

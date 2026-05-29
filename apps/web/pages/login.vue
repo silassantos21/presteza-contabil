@@ -20,7 +20,7 @@
             placeholder="seu@email.com.br"
             required
             class="w-full px-3 py-2 rounded-md border border-input bg-background text-sm
-                   focus:outline-none focus:ring-2 focus:ring-ring transition"
+                   focus:outline-none focus:ring-2 focus:ring-ring transition min-h-[44px]"
           />
         </div>
 
@@ -32,7 +32,7 @@
             placeholder="••••••••"
             required
             class="w-full px-3 py-2 rounded-md border border-input bg-background text-sm
-                   focus:outline-none focus:ring-2 focus:ring-ring transition"
+                   focus:outline-none focus:ring-2 focus:ring-ring transition min-h-[44px]"
           />
         </div>
 
@@ -42,7 +42,7 @@
           type="submit"
           :disabled="loading"
           class="w-full py-2 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium
-                 hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                 hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed min-h-[44px]"
         >
           {{ loading ? 'Entrando...' : 'Entrar' }}
         </button>

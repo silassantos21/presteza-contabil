@@ -1,17 +1,17 @@
 <template>
-  <div class="p-6 space-y-6">
+  <div class="p-4 sm:p-6 space-y-6">
     <div>
       <h1 class="text-2xl font-bold">Meus documentos</h1>
       <p class="text-muted-foreground text-sm mt-1">Acesse os documentos enviados pelo escritório</p>
     </div>
 
     <!-- Busca -->
-    <div class="relative max-w-xs">
+    <div class="relative w-full sm:max-w-xs">
       <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
       <input
         v-model="searchQuery"
         placeholder="Buscar por nome..."
-        class="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+        class="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
       />
     </div>
 
@@ -57,7 +57,7 @@
         <button
           @click="downloadDoc(doc)"
           :disabled="downloading === doc.id"
-          class="w-full flex items-center justify-center gap-2 py-2 rounded-md border border-border text-sm hover:bg-muted transition-colors disabled:opacity-50"
+          class="w-full flex items-center justify-center gap-2 py-2 rounded-md border border-border text-sm hover:bg-muted transition-colors disabled:opacity-50 min-h-[44px]"
         >
           <Download class="w-4 h-4" />
           {{ downloading === doc.id ? 'Preparando...' : 'Download' }}

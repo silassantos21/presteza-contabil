@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full">
     <!-- Cabeçalho da página -->
-    <div class="px-6 py-4 border-b border-border bg-card shrink-0 flex items-center justify-between">
+    <div class="px-4 py-3 sm:px-6 sm:py-4 border-b border-border bg-card shrink-0 flex items-center justify-between">
       <div>
         <h1 class="font-semibold text-base">Mensagens</h1>
         <p class="text-xs text-muted-foreground mt-0.5">
