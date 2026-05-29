@@ -51,17 +51,10 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    externals: {
-      inline: [
-        'unctx',
-        'vue',
-        '@vue/runtime-core',
-        '@vue/runtime-dom',
-        '@vue/reactivity',
-        '@vue/shared',
-        '@vue/server-renderer',
-        'vue-bundle-renderer',
-      ],
+    rollupConfig: {
+      // Sem isso, o Rollup elimina tryUseNuxtApp() via @__NO_SIDE_EFFECTS__ e
+      // useNuxtApp() compila para apenas throw new Error().
+      treeshake: { annotations: false },
     },
   },
 
