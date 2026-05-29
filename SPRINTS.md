@@ -180,59 +180,25 @@ Adaptar todas as páginas e layouts para funcionar corretamente em dispositivos 
 
 ## ⏳ Sprint 8 — Correções de UX, Bugs e Funcionalidades
 **Status:** Pendente
+**Objetivo:** Corrigir bugs identificados em produção, melhorar a experiência de uso e adicionar funcionalidades que completam o produto.
 
-### Objetivo
-Corrigir bugs identificados em produção, melhorar a experiência de uso e adicionar funcionalidades que completam o produto.
+### O que será feito
 
----
+#### Bugs e segurança (prioridade alta)
+- [ ] `pages/portal/index.vue` — substituir chamada `GET /processes` por `GET /processes/my-processes` (cliente vê só os próprios processos)
+- [ ] `pages/login.vue` — corrigir centralização do formulário no carregamento inicial (problema de `min-h-screen` antes do hydration)
+- [ ] `AuthController /me` — lançar `UnauthorizedException` se usuário não existir mais no banco, forçando logout automático ao recarregar a página
 
-### 🔴 Prioridade Alta — Bugs e Segurança
+#### Melhorias de UX (prioridade média)
+- [ ] Layouts `admin.vue` e `portal.vue` — mover botão de expandir/recolher sidebar para o topo do menu, separado visualmente do botão de logout
+- [ ] Backend: emitir evento WebSocket `notification:new` + salvar no banco ao criar mensagem (para o destinatário), documento (para o cliente vinculado) e processo (para o cliente vinculado)
+- [ ] Frontend admin: substituir polling do badge de notificações por evento WebSocket em tempo real
+- [ ] Frontend portal: adicionar sino de notificações no topbar com badge e lista de notificações não lidas
+- [ ] Notificações: clicar navega para o recurso correspondente (chat, documento ou processo)
 
-#### 1. Dashboard do portal exibe todos os processos (bug)
-- [ ] `pages/portal/index.vue` — substituir chamada `GET /processes` por `GET /processes/my-processes`
-- [ ] Garantir que o cliente veja apenas seus próprios processos no dashboard
-
-#### 2. Tela de login descentralizada no carregamento inicial (bug)
-- [ ] Investigar e corrigir o `min-h-screen` no `pages/login.vue` que não ocupa a tela cheia antes do hydration
-- [ ] Garantir que o formulário apareça centralizado desde o primeiro frame
-
-#### 3. Auto-logout ao excluir cliente (segurança)
-- [ ] O middleware `middleware/auth.ts` já chama `GET /auth/me` — garantir que retorne 401 quando o usuário não existe mais
-- [ ] No `AuthController`, o endpoint `/me` deve lançar `UnauthorizedException` se o usuário não for encontrado no banco
-- [ ] Testar: excluir cliente no admin → cliente recarrega a página → deve ser redirecionado para `/login`
-
----
-
-### 🟡 Prioridade Média — Melhorias de UX
-
-#### 4. Botão de expandir/recolher sidebar no topo (UX)
-- [ ] Mover o botão toggle da sidebar para o topo do menu (acima dos itens de navegação)
-- [ ] Separar visualmente do botão de logout que fica na parte inferior
-- [ ] Aplicar nos layouts `admin.vue` e `portal.vue`
-
-#### 5. Sistema de notificações em tempo real (feature)
-- [ ] **Backend:** emitir evento WebSocket `notification:new` ao criar:
-  - Nova mensagem de chat (para o destinatário)
-  - Novo documento associado a um cliente (para esse cliente)
-  - Novo processo associado a um cliente (para esse cliente)
-- [ ] **Backend:** salvar notificação no banco (`Notification`) antes de emitir o evento
-- [ ] **Frontend admin:** sino já existe — conectar ao evento WS e incrementar badge sem polling
-- [ ] **Frontend portal:** adicionar sino de notificações no topbar do layout `portal.vue`
-- [ ] Clicar na notificação deve navegar para o recurso correspondente (mensagem, documento ou processo)
-
----
-
-### 🟢 Prioridade Baixa — Conteúdo e Planejamento
-
-#### 6. Atividade recente no dashboard admin (feature)
-- [ ] Definir o que exibir: últimos documentos enviados, processos com status alterado, últimas mensagens
-- [ ] Criar endpoint `GET /activity/recent` ou aproveitar a tabela `TimelineEvent` existente
-- [ ] Substituir o placeholder "Atividade recente" no dashboard admin por dados reais
-
-#### 7. Página de Configurações (`/admin/configuracoes`)
-- [ ] Definir escopo: perfil do usuário (nome, e-mail, troca de senha), preferências de notificação
-- [ ] Criar endpoint `PATCH /users/me` na API para atualizar dados do próprio usuário
-- [ ] Implementar a página com formulário de perfil + seção de segurança (alterar senha)
+#### Novas funcionalidades (prioridade baixa)
+- [ ] Dashboard admin — substituir placeholder "Atividade recente" por dados reais: últimos documentos, processos alterados e mensagens (endpoint `GET /activity/recent` ou via tabela `TimelineEvent`)
+- [ ] Página `/admin/configuracoes` — formulário de perfil (nome, e-mail) + troca de senha, com endpoint `PATCH /users/me` na API
 
 ---
 
