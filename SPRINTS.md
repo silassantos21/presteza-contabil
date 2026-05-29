@@ -141,34 +141,34 @@ Adaptar todas as páginas e layouts para funcionar corretamente em dispositivos 
 ### Escopo
 
 #### Portal do cliente (prioridade alta)
-- [ ] Layout `portal.vue` — sidebar vira menu hambúrguer / drawer em mobile
-- [ ] `/portal` (dashboard) — KPIs empilhados em coluna única
-- [ ] `/portal/chat` — área de mensagens ocupa tela cheia em mobile
-- [ ] `/portal/documentos` — grid de 1 coluna em mobile, botões de ação legíveis
-- [ ] `/portal/processos` — lista empilhada, badges de status visíveis
+- [x] Layout `portal.vue` — sidebar vira menu hambúrguer / drawer em mobile
+- [x] `/portal` (dashboard) — KPIs empilhados em coluna única
+- [x] `/portal/chat` — área de mensagens ocupa tela cheia em mobile
+- [x] `/portal/documentos` — grid de 1 coluna em mobile, botões de ação legíveis
+- [x] `/portal/processos` — lista empilhada, badges de status visíveis
 
 #### Painel admin (prioridade média)
-- [ ] Layout `admin.vue` — sidebar vira drawer com overlay em mobile
-- [ ] `/admin` (dashboard) — KPIs em grid 2×2, tabela de processos scroll horizontal
-- [ ] `/admin/clientes` — tabela com scroll horizontal ou cards em mobile
-- [ ] `/admin/processos` — kanban com scroll horizontal por coluna em mobile
-- [ ] `/admin/documentos` — tabela com scroll horizontal, upload acessível
-- [ ] `/admin/chat` — lista de conversas ocupa tela cheia, painel de chat no mesmo nível
-- [ ] `/admin/relatorios` — cards em coluna única, lista de clientes com scroll
+- [x] Layout `admin.vue` — sidebar vira drawer com overlay em mobile
+- [x] `/admin` (dashboard) — KPIs em grid 2×2, tabela de processos scroll horizontal
+- [x] `/admin/clientes` — tabela com scroll horizontal ou cards em mobile
+- [x] `/admin/processos` — kanban com scroll horizontal por coluna em mobile
+- [x] `/admin/documentos` — tabela com scroll horizontal, upload acessível
+- [x] `/admin/chat` — lista de conversas ocupa tela cheia, painel de chat no mesmo nível
+- [x] `/admin/relatorios` — cards em coluna única, lista de clientes com scroll
 
 #### Autenticação
-- [ ] `/login` — form centrado e full-width em mobile, campos e botão com altura de toque adequada
+- [x] `/login` — form centrado e full-width em mobile, campos e botão com altura de toque adequada
 
 #### Topbar (ambos os layouts)
-- [ ] Topbar `admin.vue` — botão hambúrguer visível em mobile para abrir o drawer da sidebar
-- [ ] Topbar `portal.vue` — botão hambúrguer visível em mobile para abrir o drawer da sidebar
+- [x] Topbar `admin.vue` — botão hambúrguer visível em mobile para abrir o drawer da sidebar
+- [x] Topbar `portal.vue` — botão hambúrguer visível em mobile para abrir o drawer da sidebar
 
 #### Componentes compartilhados
-- [ ] `NavItem.vue` — labels e ícones legíveis em telas estreitas
-- [ ] `KpiCard.vue` — adaptar padding e tamanho de fonte
-- [ ] `AppDatePicker.vue` — corrigir posicionamento em mobile (pode sair da tela) e aumentar área de toque das células do calendário
-- [ ] Modais e drawers — largura total em mobile (`w-full` em vez de `max-w-lg`)
-- [ ] Inputs e botões — altura mínima de toque (`min-h-[44px]`)
+- [x] `NavItem.vue` — labels e ícones legíveis em telas estreitas
+- [x] `KpiCard.vue` — adaptar padding e tamanho de fonte
+- [x] `AppDatePicker.vue` — corrigir posicionamento em mobile (pode sair da tela) e aumentar área de toque das células do calendário
+- [x] Modais e drawers — largura total em mobile (`w-full` em vez de `max-w-lg`)
+- [x] Inputs e botões — altura mínima de toque (`min-h-[44px]`)
 
 ### Diretrizes técnicas
 - Mobile-first: revisar breakpoints `sm:`, `md:`, `lg:` em cada página
@@ -179,11 +179,27 @@ Adaptar todas as páginas e layouts para funcionar corretamente em dispositivos 
 
 ---
 
-## ⏳ Sprint 8 — Correções de UX, Bugs e Funcionalidades
-**Status:** Pendente
+## 🔄 Sprint 8 — Correções de UX, Bugs e Funcionalidades
+**Status:** Em andamento
+**Data início:** 29/05/2026
 **Objetivo:** Corrigir bugs identificados em produção, melhorar a experiência de uso e adicionar funcionalidades que completam o produto.
 
-### O que será feito
+### O que foi feito
+
+#### Melhorias de UI mobile (29/05/2026)
+- [x] `KpiCard.vue` — layout vertical com ícone centralizado, número grande e label abaixo (melhor em grid 2×2)
+- [x] `nuxt.config.ts` — DevTools desativado (remove botão flutuante do Nuxt na tela)
+- [x] `MessageInput.vue` — placeholder encurtado para `"Digite aqui..."`
+- [x] `admin/chat.vue` — corrige bug: clicar no mesmo contato após voltar para lista não reabre o chat; `mobileView = 'chat'` agora ocorre antes do early return
+- [x] `admin/processos.vue` e `admin/documentos.vue` — selects de filtro com `w-full sm:w-auto` (não saem mais da viewport)
+- [x] `admin/clientes.vue`, `admin/documentos.vue`, `admin/processos.vue` — botões de ação mostram só o ícone em mobile (`<span class="hidden sm:inline">`); subtítulos das páginas removidos
+- [x] `admin/clientes.vue` e `admin/documentos.vue` — tabelas substituídas por cards accordion em mobile (`block sm:hidden`); tabela permanece no desktop (`hidden sm:block`)
+- [x] `admin/faq.vue` — nova página de ajuda com 7 seções accordion (Dashboard, Chat, Clientes, Processos, Documentos, Relatórios, Configurações); item "Ajuda" adicionado na sidebar
+- [x] `NavItem.vue` — `focus:outline-none` remove destaque visual ao clicar com mouse; `focus-visible:ring-2` mantém acessibilidade por teclado
+- [x] Formulário de processos — `Status` e `Cliente` trocaram de posição no grid; `Tipo` full-width ao criar; `Cliente` e `Vencimento` full-width em mobile
+- [x] Formulário de clientes — 6 campos (Nome fantasia, Responsável, CNPJ, CPF, E-mail, Contato) full-width em mobile via `col-span-2 sm:col-span-1`
+
+### O que falta
 
 #### Bugs e segurança (prioridade alta)
 - [ ] `pages/portal/index.vue` — substituir chamada `GET /processes` por `GET /processes/my-processes` (cliente vê só os próprios processos)
