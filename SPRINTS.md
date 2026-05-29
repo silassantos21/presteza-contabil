@@ -118,14 +118,16 @@
 
 ---
 
-## ⏳ Sprint 6 — Deploy (Vercel + Railway)
-**Status:** Pendente
+## ✅ Sprint 6 — Deploy (Vercel + Railway)
+**Status:** Concluída
+**Data conclusão:** 29/05/2026
 
-### O que será feito
-- [ ] Configurar Railway para a API NestJS
-- [ ] Configurar Vercel para o Nuxt.js
-- [ ] Variáveis de ambiente de produção
-- [ ] Testar fluxo completo em produção
+### O que foi feito
+- [x] Configurar Railway para a API NestJS (`https://prestezaapi-production.up.railway.app`)
+- [x] Configurar Vercel para o Nuxt.js (`https://presteza-contabil-api.vercel.app`)
+- [x] Variáveis de ambiente de produção (Railway + Vercel)
+- [x] Fix crítico: `nitro.rollupConfig.treeshake.annotations: false` — impedia SSR no Vercel
+- [x] Testar fluxo completo em produção — todos os módulos funcionando
 
 ---
 
@@ -173,6 +175,64 @@ Adaptar todas as páginas e layouts para funcionar corretamente em dispositivos 
 - Tabelas longas: `overflow-x-auto` no container pai (nunca no `<table>`)
 - Fontes: mínimo `text-sm` (14px) em mobile — nunca `text-xs` em texto funcional
 - Toque: elementos clicáveis com área mínima de 44×44 px (padrão WCAG)
+
+---
+
+## ⏳ Sprint 8 — Correções de UX, Bugs e Funcionalidades
+**Status:** Pendente
+
+### Objetivo
+Corrigir bugs identificados em produção, melhorar a experiência de uso e adicionar funcionalidades que completam o produto.
+
+---
+
+### 🔴 Prioridade Alta — Bugs e Segurança
+
+#### 1. Dashboard do portal exibe todos os processos (bug)
+- [ ] `pages/portal/index.vue` — substituir chamada `GET /processes` por `GET /processes/my-processes`
+- [ ] Garantir que o cliente veja apenas seus próprios processos no dashboard
+
+#### 2. Tela de login descentralizada no carregamento inicial (bug)
+- [ ] Investigar e corrigir o `min-h-screen` no `pages/login.vue` que não ocupa a tela cheia antes do hydration
+- [ ] Garantir que o formulário apareça centralizado desde o primeiro frame
+
+#### 3. Auto-logout ao excluir cliente (segurança)
+- [ ] O middleware `middleware/auth.ts` já chama `GET /auth/me` — garantir que retorne 401 quando o usuário não existe mais
+- [ ] No `AuthController`, o endpoint `/me` deve lançar `UnauthorizedException` se o usuário não for encontrado no banco
+- [ ] Testar: excluir cliente no admin → cliente recarrega a página → deve ser redirecionado para `/login`
+
+---
+
+### 🟡 Prioridade Média — Melhorias de UX
+
+#### 4. Botão de expandir/recolher sidebar no topo (UX)
+- [ ] Mover o botão toggle da sidebar para o topo do menu (acima dos itens de navegação)
+- [ ] Separar visualmente do botão de logout que fica na parte inferior
+- [ ] Aplicar nos layouts `admin.vue` e `portal.vue`
+
+#### 5. Sistema de notificações em tempo real (feature)
+- [ ] **Backend:** emitir evento WebSocket `notification:new` ao criar:
+  - Nova mensagem de chat (para o destinatário)
+  - Novo documento associado a um cliente (para esse cliente)
+  - Novo processo associado a um cliente (para esse cliente)
+- [ ] **Backend:** salvar notificação no banco (`Notification`) antes de emitir o evento
+- [ ] **Frontend admin:** sino já existe — conectar ao evento WS e incrementar badge sem polling
+- [ ] **Frontend portal:** adicionar sino de notificações no topbar do layout `portal.vue`
+- [ ] Clicar na notificação deve navegar para o recurso correspondente (mensagem, documento ou processo)
+
+---
+
+### 🟢 Prioridade Baixa — Conteúdo e Planejamento
+
+#### 6. Atividade recente no dashboard admin (feature)
+- [ ] Definir o que exibir: últimos documentos enviados, processos com status alterado, últimas mensagens
+- [ ] Criar endpoint `GET /activity/recent` ou aproveitar a tabela `TimelineEvent` existente
+- [ ] Substituir o placeholder "Atividade recente" no dashboard admin por dados reais
+
+#### 7. Página de Configurações (`/admin/configuracoes`)
+- [ ] Definir escopo: perfil do usuário (nome, e-mail, troca de senha), preferências de notificação
+- [ ] Criar endpoint `PATCH /users/me` na API para atualizar dados do próprio usuário
+- [ ] Implementar a página com formulário de perfil + seção de segurança (alterar senha)
 
 ---
 
