@@ -5,6 +5,7 @@ node_modules
 dist
 .output
 .nuxt
+.vercel
 .turbo
 *.log
 *.tsbuildinfo

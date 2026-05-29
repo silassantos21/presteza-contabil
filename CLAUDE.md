@@ -288,6 +288,25 @@ O middleware `middleware/auth.ts` usa `if (import.meta.server) return` para não
 
 **⚠️ Nunca adicionar `ssr: false` no `nuxt.config.ts`** — no Nuxt 3.11.2, isso faz o Vite subir num servidor interno separado (porta ~24678) que o browser não consegue acessar, quebrando toda a estilização. A solução correta para auth com localStorage é o plugin client-side acima.
 
+### `[nuxt] instance unavailable` no deploy Vercel — Rollup tree-shaking (CRÍTICO)
+
+**Sintoma:** a página retorna `500: [nuxt] instance unavailable` apenas em produção (Vercel). Em dev funciona normalmente.
+
+**Causa:** Nuxt 3.11.2 anota `tryUseNuxtApp()` com `@__NO_SIDE_EFFECTS__` e `/* @__PURE__ */`. O Rollup usado pelo Nitro interpreta essas anotações como permissão para eliminar a chamada, compilando `useNuxtApp()` para apenas `throw new Error("[nuxt] instance unavailable")` — sem nenhuma tentativa de recuperar o contexto via `getCurrentInstance()` ou AsyncLocalStorage.
+
+**Fix permanente** (já aplicado em `nuxt.config.ts`):
+```typescript
+nitro: {
+  rollupConfig: {
+    treeshake: { annotations: false },
+  },
+},
+```
+
+**NÃO REMOVER** essa opção em atualizações de Nuxt/Nitro. Para verificar se ainda é necessária após um update: após build, checar se `chunks/build/server.mjs` contém a função `tryUseNuxtApp` completa. Se o arquivo tiver apenas `throw new Error(...)` dentro de `useNuxtApp`, adicionar a opção de volta.
+
+---
+
 ### HMR port 24678 (Vite interno)
 No Nuxt 3.11.2 + Vite, o `@vite/client` injetado nas páginas pode ter `hmrPort` apontando para a porta interna do Vite (~24678). Isso causa `ERR_CONNECTION_REFUSED` no console e quebra hot-reload.
 
