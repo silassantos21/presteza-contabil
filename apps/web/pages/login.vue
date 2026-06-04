@@ -3,10 +3,11 @@
     <div class="w-full">
       <!-- Logo -->
       <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary mb-4">
-          <span class="text-primary-foreground font-bold text-xl">P</span>
-        </div>
-        <h1 class="text-2xl font-bold">Presteza Contábil</h1>
+        <img
+          src="~/assets/images/logo-full.svg"
+          alt="Presteza Contábil"
+          class="h-12 w-auto max-w-[280px] mx-auto mb-4 dark:brightness-0 dark:invert"
+        />
         <p class="text-muted-foreground text-sm mt-1">Entre na sua conta</p>
       </div>
 

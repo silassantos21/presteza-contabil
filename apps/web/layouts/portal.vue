@@ -21,23 +21,28 @@
       <!-- Logo -->
       <div
         class="flex items-center border-b border-border shrink-0 transition-all duration-200"
-        :class="sidebarCollapsed ? 'justify-center px-2 py-5' : 'gap-3 px-5 py-5'"
+        :class="sidebarCollapsed ? 'justify-center px-2 py-5' : 'px-5 py-5'"
       >
-        <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-          <span class="text-primary-foreground font-bold text-sm">P</span>
-        </div>
+        <img
+          v-if="sidebarCollapsed"
+          src="~/assets/images/logo-symbol.svg"
+          alt="Presteza"
+          class="w-8 h-8 object-contain shrink-0"
+        />
         <Transition
-          enter-active-class="transition-all duration-150 ease-out"
-          enter-from-class="opacity-0 w-0"
+          enter-active-class="transition-opacity duration-150 ease-out"
+          enter-from-class="opacity-0"
           enter-to-class="opacity-100"
-          leave-active-class="transition-all duration-100 ease-in"
+          leave-active-class="transition-opacity duration-100 ease-in"
           leave-from-class="opacity-100"
-          leave-to-class="opacity-0 w-0"
+          leave-to-class="opacity-0"
         >
-          <div v-if="!sidebarCollapsed" class="overflow-hidden">
-            <p class="font-semibold text-sm leading-tight whitespace-nowrap">Presteza</p>
-            <p class="text-xs text-muted-foreground whitespace-nowrap">Portal do Cliente</p>
-          </div>
+          <img
+            v-if="!sidebarCollapsed"
+            src="~/assets/images/logo-full.svg"
+            alt="Presteza Contábil"
+            class="h-9 w-auto max-w-[180px] object-contain dark:brightness-0 dark:invert"
+          />
         </Transition>
       </div>
 
