@@ -41,6 +41,24 @@
         </Transition>
       </div>
 
+      <!-- Toggle sidebar — só desktop, acima dos itens de menu -->
+      <div
+        class="hidden lg:flex border-b border-border shrink-0"
+        :class="sidebarCollapsed ? 'justify-center px-2 py-2' : 'px-3 py-2'"
+      >
+        <button
+          @click="collapsed = !collapsed"
+          :title="sidebarCollapsed ? 'Expandir menu' : 'Recolher menu'"
+          :class="[
+            'flex w-full items-center rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors min-h-[36px]',
+            sidebarCollapsed ? 'justify-center p-2' : 'gap-3 px-3 py-2',
+          ]"
+        >
+          <component :is="sidebarCollapsed ? PanelLeftOpen : PanelLeftClose" class="w-4 h-4 shrink-0" />
+          <span v-if="!sidebarCollapsed" class="text-xs">Recolher menu</span>
+        </button>
+      </div>
+
       <!-- Navegação -->
       <nav
         class="flex-1 py-4 space-y-1 overflow-y-auto"
@@ -56,12 +74,11 @@
         <NavItem to="/admin/faq" icon="HelpCircle" label="Ajuda" :collapsed="sidebarCollapsed" />
       </nav>
 
-      <!-- Footer -->
+      <!-- Footer — só logout -->
       <div
-        class="py-3 border-t border-border space-y-1"
+        class="py-3 border-t border-border"
         :class="sidebarCollapsed ? 'px-2' : 'px-3'"
       >
-        <!-- Botão sair -->
         <button
           @click="authStore.logout()"
           :title="sidebarCollapsed ? 'Sair' : undefined"
@@ -80,19 +97,6 @@
           >
             Sair
           </span>
-        </button>
-
-        <!-- Toggle sidebar — só desktop -->
-        <button
-          @click="collapsed = !collapsed"
-          :title="sidebarCollapsed ? 'Expandir menu' : 'Recolher menu'"
-          :class="[
-            'hidden lg:flex w-full items-center rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors min-h-[44px]',
-            sidebarCollapsed ? 'justify-center p-2' : 'gap-3 px-3 py-2',
-          ]"
-        >
-          <component :is="sidebarCollapsed ? PanelLeftOpen : PanelLeftClose" class="w-4 h-4 shrink-0" />
-          <span v-if="!sidebarCollapsed" class="text-xs">Recolher menu</span>
         </button>
       </div>
     </aside>
@@ -123,15 +127,69 @@
           </button>
 
           <!-- Notificações -->
-          <button class="relative p-2 rounded-md hover:bg-accent transition-colors">
-            <Bell class="w-5 h-5 text-muted-foreground" />
-            <span
-              v-if="unreadCount > 0"
-              class="absolute top-1 right-1 w-4 h-4 text-[10px] font-bold bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
+          <div class="relative" ref="notifRef">
+            <button
+              @click="toggleNotif"
+              class="relative p-2 rounded-md hover:bg-accent transition-colors"
+              aria-label="Notificações"
             >
-              {{ unreadCount > 9 ? '9+' : unreadCount }}
-            </span>
-          </button>
+              <Bell class="w-5 h-5 text-muted-foreground" />
+              <span
+                v-if="unreadCount > 0"
+                class="absolute top-1 right-1 w-4 h-4 text-[10px] font-bold bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
+              >
+                {{ unreadCount > 9 ? '9+' : unreadCount }}
+              </span>
+            </button>
+
+            <!-- Dropdown de notificações -->
+            <Transition
+              enter-active-class="transition-all duration-150 ease-out"
+              enter-from-class="opacity-0 translate-y-1"
+              enter-to-class="opacity-100 translate-y-0"
+              leave-active-class="transition-all duration-100 ease-in"
+              leave-from-class="opacity-100 translate-y-0"
+              leave-to-class="opacity-0 translate-y-1"
+            >
+              <div
+                v-if="notifOpen"
+                class="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden"
+              >
+                <div class="px-4 py-3 border-b border-border flex items-center justify-between">
+                  <h3 class="text-sm font-semibold">Notificações</h3>
+                  <button
+                    v-if="unreadCount > 0"
+                    @click="markAllRead"
+                    class="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Marcar como lidas
+                  </button>
+                </div>
+                <div class="max-h-80 overflow-y-auto">
+                  <p v-if="!notifications.length" class="px-4 py-6 text-sm text-muted-foreground text-center">
+                    Nenhuma notificação
+                  </p>
+                  <div
+                    v-for="n in notifications"
+                    :key="n.id"
+                    @click="handleNotifClick(n)"
+                    class="px-4 py-3 hover:bg-accent cursor-pointer border-b border-border last:border-0 transition-colors"
+                    :class="{ 'bg-primary/5': !n.read }"
+                  >
+                    <div class="flex items-start gap-2">
+                      <span v-if="!n.read" class="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                      <span v-else class="mt-1.5 w-1.5 h-1.5 shrink-0" />
+                      <div class="min-w-0">
+                        <p class="text-sm font-medium truncate">{{ n.title }}</p>
+                        <p class="text-xs text-muted-foreground mt-0.5 line-clamp-2">{{ n.body }}</p>
+                        <p class="text-xs text-muted-foreground mt-1">{{ formatTime(n.createdAt) }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Transition>
+          </div>
 
           <!-- Avatar -->
           <div class="flex items-center gap-2">
@@ -155,6 +213,9 @@
 
 <script setup lang="ts">
 import { Bell, LogOut, Menu, Moon, Sun, PanelLeftOpen, PanelLeftClose } from 'lucide-vue-next'
+import { onClickOutside } from '@vueuse/core'
+import { WS_EVENTS } from '@presteza/types'
+import type { Notification } from '@presteza/types'
 
 const authStore = useAuthStore()
 const api = useApi()
@@ -164,7 +225,6 @@ const collapsed = ref(true)
 const mobileOpen = ref(false)
 
 const sidebarCollapsed = computed(() => collapsed.value && !mobileOpen.value)
-
 const isDark = computed(() => colorMode.value === 'dark')
 
 function toggleColorMode() {
@@ -173,20 +233,79 @@ function toggleColorMode() {
 
 watch(() => route.path, () => {
   mobileOpen.value = false
+  notifOpen.value = false
 })
 
-const unreadCount = ref(0)
+// ─── Notificações ──────────────────────────────────────────────────────────────
 
-async function fetchUnreadCount() {
+const notifOpen = ref(false)
+const notifRef = ref<HTMLElement | null>(null)
+const unreadCount = ref(0)
+const notifications = ref<Notification[]>([])
+
+onClickOutside(notifRef, () => { notifOpen.value = false })
+
+function toggleNotif() {
+  notifOpen.value = !notifOpen.value
+  if (notifOpen.value && unreadCount.value > 0) {
+    markAllRead()
+  }
+}
+
+async function fetchNotifications() {
   try {
-    const { count } = await api.get<{ count: number }>('/notifications/unread-count')
-    unreadCount.value = count
+    const data = await api.get<Notification[]>('/notifications')
+    notifications.value = data
+    unreadCount.value = data.filter((n) => !n.read).length
   } catch {}
 }
 
+async function markAllRead() {
+  try {
+    await api.patch('/notifications/read-all', {})
+    notifications.value = notifications.value.map((n) => ({ ...n, read: true }))
+    unreadCount.value = 0
+  } catch {}
+}
+
+function handleNotifClick(n: Notification) {
+  notifOpen.value = false
+  const routes: Record<string, string> = {
+    NEW_MESSAGE: '/admin/chat',
+    NEW_DOCUMENT: '/admin/documentos',
+    PROCESS_UPDATE: '/admin/processos',
+  }
+  const target = routes[n.type]
+  if (target) navigateTo(target)
+}
+
+function formatTime(date: Date | string) {
+  const d = new Date(date)
+  const diff = Date.now() - d.getTime()
+  if (diff < 60_000) return 'agora'
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}min atrás`
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h atrás`
+  return d.toLocaleDateString('pt-BR')
+}
+
+// ─── WebSocket ─────────────────────────────────────────────────────────────────
+
 onMounted(() => {
-  fetchUnreadCount()
-  const interval = setInterval(fetchUnreadCount, 30_000)
-  onUnmounted(() => clearInterval(interval))
+  fetchNotifications()
+
+  const { $socket } = useNuxtApp() as any
+  const chatStore = useChatStore()
+
+  function onNewNotification(notif: Notification) {
+    notifications.value.unshift(notif)
+    unreadCount.value++
+  }
+
+  $socket.on(WS_EVENTS.NEW_NOTIFICATION, onNewNotification)
+  chatStore.connect()
+
+  onUnmounted(() => {
+    $socket.off(WS_EVENTS.NEW_NOTIFICATION, onNewNotification)
+  })
 })
 </script>

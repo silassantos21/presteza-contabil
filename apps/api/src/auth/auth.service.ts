@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcryptjs'
 import { UsersService } from '../users/users.service'
@@ -45,6 +45,11 @@ export class AuthService {
   }
 
   async getProfile(userId: string) {
-    return this.usersService.findById(userId)
+    try {
+      return await this.usersService.findById(userId)
+    } catch (e) {
+      if (e instanceof NotFoundException) throw new UnauthorizedException('Sessão inválida')
+      throw e
+    }
   }
 }

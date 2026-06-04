@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { PrismaModule } from './prisma/prisma.module'
+import { SocketModule } from './socket/socket.module'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { ClientsModule } from './clients/clients.module'
@@ -17,6 +18,9 @@ import { ReportsModule } from './reports/reports.module'
 
     // Banco de dados
     PrismaModule,
+
+    // SocketService global (emite eventos WS para salas de usuário)
+    SocketModule,
 
     // Módulos de negócio
     AuthModule,

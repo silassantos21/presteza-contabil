@@ -144,6 +144,7 @@ export interface TimelineEvent {
 export const WS_EVENTS = {
   // Client → Server
   JOIN_CONVERSATION: 'join_conversation',
+  JOIN_USER_ROOM: 'join_user_room',
   SEND_MESSAGE: 'send_message',
 
   // Server → Client

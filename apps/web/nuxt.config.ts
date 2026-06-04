@@ -1,3 +1,5 @@
+import { resolve } from 'path'
+
 export default defineNuxtConfig({
   devtools: { enabled: false },
   // @ts-ignore — compatibilityDate foi adicionado nos tipos do Nuxt 3.12+;
@@ -59,10 +61,12 @@ export default defineNuxtConfig({
   },
 
   vite: {
-    // Garante que pacotes de workspace com CJS sejam pré-compilados para ESM
-    // pelo esbuild do Vite, evitando "does not provide an export named X".
-    optimizeDeps: {
-      include: ['@presteza/types'],
+    resolve: {
+      alias: {
+        // Aponta direto para o source TypeScript — elimina dependência do dist/ compilado
+        // e evita que o cache pre-bundle do Vite sirva uma versão desatualizada.
+        '@presteza/types': resolve(__dirname, '../../packages/types/src/index.ts'),
+      },
     },
     server: {
       hmr: {

@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-background px-4">
-    <div class="w-full max-w-sm">
+  <div class="w-full max-w-sm px-4 mx-auto">
+    <div class="w-full">
       <!-- Logo -->
       <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary mb-4">
@@ -60,6 +60,13 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'default' })
+
+useHead({
+  bodyAttrs: {
+    class: 'bg-background',
+    style: 'min-height:100dvh;display:flex;align-items:center;justify-content:center;',
+  },
+})
 
 const authStore = useAuthStore()
 const config = useRuntimeConfig()

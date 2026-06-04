@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { StorageService } from '../storage/storage.service'
+import { NotificationsService } from '../notifications/notifications.service'
 import { DocumentType } from '@prisma/client'
 
 @Injectable()
@@ -12,6 +13,7 @@ export class DocumentsService {
   constructor(
     private prisma: PrismaService,
     private storage: StorageService,
+    private notificationsService: NotificationsService,
   ) {}
 
   findByClient(clientId: string) {
@@ -40,7 +42,7 @@ export class DocumentsService {
       file.mimetype,
     )
 
-    return this.prisma.document.create({
+    const document = await this.prisma.document.create({
       data: {
         clientId,
         name: file.originalname,
@@ -51,6 +53,24 @@ export class DocumentsService {
       },
       include: { uploadedBy: { select: { id: true, name: true } } },
     })
+
+    try {
+      const client = await this.prisma.client.findUnique({
+        where: { id: clientId },
+        select: { userId: true },
+      })
+      if (client && client.userId !== uploadedById) {
+        await this.notificationsService.createAndNotify({
+          userId: client.userId,
+          type: 'NEW_DOCUMENT',
+          title: 'Novo documento disponível',
+          body: `O arquivo "${file.originalname}" foi adicionado à sua pasta.`,
+          referenceId: document.id,
+        })
+      }
+    } catch {}
+
+    return document
   }
 
   async getSignedUrl(id: string, requesterId: string, requesterRole: string) {

@@ -76,7 +76,6 @@ const error = ref(false)
 async function init() {
   error.value = false
   try {
-    chatStore.connect()
     const conv = await chatStore.fetchMyConversation()
     if (conv?.id) {
       await chatStore.openConversation(conv.id)

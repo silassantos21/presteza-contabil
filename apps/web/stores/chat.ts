@@ -11,18 +11,15 @@ interface ConversationWithMeta extends Conversation {
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
-    /** Lista de conversas (visão admin) */
     conversations: [] as ConversationWithMeta[],
-    /** Conversa atualmente aberta */
     activeConversationId: null as string | null,
-    /** Mensagens da conversa ativa */
     messages: [] as Message[],
-    /** Conversa do portal do cliente */
     myConversation: null as Conversation | null,
-    /** Indicador de carregamento */
     loading: false,
-    /** Socket conectado? */
     socketConnected: false,
+    /** Impede registro duplicado de listeners quando connect() é chamado
+     *  antes do socket ter conectado (layout + página chamam juntos). */
+    _listenersReady: false,
   }),
 
   getters: {
@@ -36,45 +33,61 @@ export const useChatStore = defineStore('chat', {
     connect() {
       if (import.meta.server) return
       const { $socket } = useNuxtApp() as any
-      if (!$socket || $socket.connected) return
+      if (!$socket) return
 
-      $socket.connect()
+      const authStore = useAuthStore()
+
+      const joinUserRoom = () => {
+        if (authStore.user?.id) {
+          $socket.emit(WS_EVENTS.JOIN_USER_ROOM, { userId: authStore.user.id })
+        }
+      }
+
+      // Já conectado: sincroniza estado e entra na sala de notificações
+      if ($socket.connected) {
+        console.log('🔍 [chatStore.connect] socket já conectado, sincronizando')
+        this.socketConnected = true
+        joinUserRoom()
+        return
+      }
+
+      if (this._listenersReady) {
+        console.log('🔍 [chatStore.connect] listeners já registrados, aguardando reconexão automática')
+        return
+      }
+
+      console.log('🔍 [chatStore.connect] registrando listeners e conectando...')
+      this._listenersReady = true
 
       $socket.on('connect', () => {
         this.socketConnected = true
+        joinUserRoom()
         console.log('✅ Socket conectado:', $socket.id)
       })
 
-      $socket.on('disconnect', () => {
+      $socket.on('disconnect', (reason: string) => {
         this.socketConnected = false
-        console.log('🔌 Socket desconectado')
+        console.log('🔌 Socket desconectado — motivo:', reason)
       })
 
       $socket.on(WS_EVENTS.NEW_MESSAGE, (message: Message) => {
-        // Só adiciona se for da conversa ativa (evita duplicatas)
         if (message.conversationId === this.activeConversationId) {
           const alreadyExists = this.messages.some((m) => m.id === message.id)
-          if (!alreadyExists) {
-            this.messages.push(message)
-          }
+          if (!alreadyExists) this.messages.push(message)
         }
-        // Atualiza o lastMessage na lista de conversas (admin)
-        const conv = this.conversations.find(
-          (c) => c.id === message.conversationId,
-        )
-        if (conv) {
-          conv.lastMessage = message
-        }
+        const conv = this.conversations.find((c) => c.id === message.conversationId)
+        if (conv) conv.lastMessage = message
       })
+
+      $socket.connect()
     },
 
     disconnect() {
       if (import.meta.server) return
       const { $socket } = useNuxtApp() as any
-      if ($socket?.connected) {
-        $socket.disconnect()
-      }
+      if ($socket?.connected) $socket.disconnect()
       this.socketConnected = false
+      this._listenersReady = false  // permite re-registrar listeners no próximo login
     },
 
     joinConversation(conversationId: string) {
@@ -132,8 +145,6 @@ export const useChatStore = defineStore('chat', {
       this.joinConversation(conversationId)
     },
 
-    // ─── Envio de mensagem via WebSocket ───────────────────────────────────────
-
     sendMessage(conversationId: string, content: string, senderId: string) {
       if (import.meta.server) return
       const { $socket } = useNuxtApp() as any
@@ -141,12 +152,7 @@ export const useChatStore = defineStore('chat', {
         console.warn('Socket não conectado — mensagem não enviada')
         return
       }
-      $socket.emit(WS_EVENTS.SEND_MESSAGE, {
-        conversationId,
-        senderId,
-        content,
-        type: 'TEXT',
-      })
+      $socket.emit(WS_EVENTS.SEND_MESSAGE, { conversationId, senderId, content, type: 'TEXT' })
     },
 
     reset() {

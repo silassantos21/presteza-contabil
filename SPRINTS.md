@@ -179,9 +179,10 @@ Adaptar todas as páginas e layouts para funcionar corretamente em dispositivos 
 
 ---
 
-## 🔄 Sprint 8 — Correções de UX, Bugs e Funcionalidades
-**Status:** Em andamento
+## ✅ Sprint 8 — Correções de UX, Bugs e Funcionalidades
+**Status:** Concluída
 **Data início:** 29/05/2026
+**Data conclusão:** 03/06/2026
 **Objetivo:** Corrigir bugs identificados em produção, melhorar a experiência de uso e adicionar funcionalidades que completam o produto.
 
 ### O que foi feito
@@ -202,20 +203,24 @@ Adaptar todas as páginas e layouts para funcionar corretamente em dispositivos 
 ### O que falta
 
 #### Bugs e segurança (prioridade alta)
-- [ ] `pages/portal/index.vue` — substituir chamada `GET /processes` por `GET /processes/my-processes` (cliente vê só os próprios processos)
-- [ ] `pages/login.vue` — corrigir centralização do formulário no carregamento inicial (problema de `min-h-screen` antes do hydration)
-- [ ] `AuthController /me` — lançar `UnauthorizedException` se usuário não existir mais no banco, forçando logout automático ao recarregar a página
+- [x] `pages/portal/index.vue` — substituir chamada `GET /processes` por `GET /processes/my-processes` (cliente vê só os próprios processos)
+- [x] `pages/login.vue` — corrigir centralização do formulário no carregamento inicial (`useHead` aplica flex+min-height no body via SSR)
+- [x] `AuthController /me` — lançar `UnauthorizedException` se usuário não existir mais no banco, forçando logout automático ao recarregar a página
 
 #### Melhorias de UX (prioridade média)
-- [ ] Layouts `admin.vue` e `portal.vue` — mover botão de expandir/recolher sidebar para o topo do menu, separado visualmente do botão de logout
-- [ ] Backend: emitir evento WebSocket `notification:new` + salvar no banco ao criar mensagem (para o destinatário), documento (para o cliente vinculado) e processo (para o cliente vinculado)
-- [ ] Frontend admin: substituir polling do badge de notificações por evento WebSocket em tempo real
-- [ ] Frontend portal: adicionar sino de notificações no topbar com badge e lista de notificações não lidas
-- [ ] Notificações: clicar navega para o recurso correspondente (chat, documento ou processo)
+- [x] Layouts `admin.vue` e `portal.vue` — botão expandir/recolher movido para acima dos itens de menu (separado do logout)
+- [x] Backend: `NotificationsGateway` criado; `NotificationsService.createAndNotify` salva no banco e emite `new_notification` via WebSocket; `ChatGateway`, `DocumentsService` e `ProcessesService` criam notificações nos eventos corretos
+- [x] Frontend admin: polling substituído por WebSocket (`join_user_room` + `new_notification`)
+- [x] Frontend portal: sino de notificações com badge, dropdown com lista, marcar como lidas e navegação ao recurso
+- [x] Notificações: clicar navega para chat, documentos ou processos conforme o tipo
 
-#### Novas funcionalidades (prioridade baixa)
-- [ ] Dashboard admin — substituir placeholder "Atividade recente" por dados reais: últimos documentos, processos alterados e mensagens (endpoint `GET /activity/recent` ou via tabela `TimelineEvent`)
-- [ ] Página `/admin/configuracoes` — formulário de perfil (nome, e-mail) + troca de senha, com endpoint `PATCH /users/me` na API
+#### Bugs de infraestrutura (03/06/2026)
+- [x] WebSocket `forced close` loop — causa raiz: `vite.optimizeDeps.include` servia cache pré-bundle desatualizado de `@presteza/types`, fazendo `WS_EVENTS.JOIN_USER_ROOM` ser `undefined` no browser → socket.io-parser rejeitava o pacote `2[null,{...}]` com `"invalid payload"` e fechava a conexão; fix: alias Vite apontando direto para o `.ts` source em `nuxt.config.ts`
+- [x] `layouts/admin.vue` — sino de notificações sem popup: adicionado dropdown idêntico ao portal (lista, "marcar como lidas", navegação por tipo), com rotas adaptadas para `/admin/*`
+
+#### Novas funcionalidades (prioridade baixa — adiadas para Sprint 9)
+- [ ] Dashboard admin — substituir placeholder "Atividade recente" por dados reais
+- [ ] Página `/admin/configuracoes` — formulário de perfil + troca de senha (`PATCH /users/me`)
 
 ---
 

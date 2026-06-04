@@ -182,7 +182,6 @@ const mobileView = ref<'list' | 'chat'>('list')
 
 // ── Inicialização ──────────────────────────────────────────────────────────
 onMounted(async () => {
-  chatStore.connect()
   await chatStore.fetchConversations()
   const cid = route.query.conversationId
   if (cid && typeof cid === 'string') {

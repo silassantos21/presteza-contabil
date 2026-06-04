@@ -64,6 +64,39 @@ export class ChatService {
     return conversation
   }
 
+  async getConversationRecipients(
+    conversationId: string,
+    senderId: string,
+  ): Promise<{ senderName: string; recipientIds: string[] }> {
+    const [conv, sender] = await Promise.all([
+      this.prisma.conversation.findUnique({
+        where: { id: conversationId },
+        include: { client: { select: { userId: true } } },
+      }),
+      this.prisma.user.findUnique({
+        where: { id: senderId },
+        select: { role: true, name: true },
+      }),
+    ])
+
+    if (sender?.role === 'ADMIN') {
+      const recipientId = conv?.client?.userId
+      return {
+        senderName: sender.name,
+        recipientIds: recipientId ? [recipientId] : [],
+      }
+    }
+
+    const admins = await this.prisma.user.findMany({
+      where: { role: 'ADMIN' },
+      select: { id: true },
+    })
+    return {
+      senderName: sender?.name ?? 'Cliente',
+      recipientIds: admins.map((a) => a.id),
+    }
+  }
+
   async getConversationByUserId(userId: string) {
     // Encontra o cliente vinculado a este usuário e retorna sua conversa
     const client = await this.prisma.client.findUnique({

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { ProcessStatus, ProcessType } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
+import { NotificationsService } from '../notifications/notifications.service'
 
 export interface CreateProcessDto {
   title: string
@@ -25,9 +26,19 @@ const processInclude = {
   assignedTo: { select: { id: true, name: true } },
 }
 
+const statusLabels: Record<string, string> = {
+  PENDING: 'Pendente',
+  IN_PROGRESS: 'Em andamento',
+  DONE: 'Concluído',
+  CANCELLED: 'Cancelado',
+}
+
 @Injectable()
 export class ProcessesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   findAll(clientId?: string) {
     return this.prisma.process.findMany({
@@ -64,8 +75,8 @@ export class ProcessesService {
     })
   }
 
-  create(dto: CreateProcessDto) {
-    return this.prisma.process.create({
+  async create(dto: CreateProcessDto) {
+    const process = await this.prisma.process.create({
       data: {
         title: dto.title,
         type: dto.type,
@@ -76,11 +87,29 @@ export class ProcessesService {
       },
       include: processInclude,
     })
+
+    try {
+      const client = await this.prisma.client.findUnique({
+        where: { id: dto.clientId },
+        select: { userId: true },
+      })
+      if (client?.userId) {
+        await this.notificationsService.createAndNotify({
+          userId: client.userId,
+          type: 'PROCESS_UPDATE',
+          title: 'Novo processo aberto',
+          body: `O processo "${process.title}" foi criado para você.`,
+          referenceId: process.id,
+        })
+      }
+    } catch {}
+
+    return process
   }
 
   async update(id: string, dto: UpdateProcessDto) {
     await this.findOne(id)
-    return this.prisma.process.update({
+    const updated = await this.prisma.process.update({
       where: { id },
       data: {
         ...(dto.title !== undefined && { title: dto.title }),
@@ -92,6 +121,26 @@ export class ProcessesService {
       },
       include: processInclude,
     })
+
+    if (dto.status !== undefined) {
+      try {
+        const client = await this.prisma.client.findUnique({
+          where: { id: updated.clientId },
+          select: { userId: true },
+        })
+        if (client?.userId) {
+          await this.notificationsService.createAndNotify({
+            userId: client.userId,
+            type: 'PROCESS_UPDATE',
+            title: 'Processo atualizado',
+            body: `"${updated.title}" está agora ${statusLabels[dto.status] ?? dto.status}.`,
+            referenceId: updated.id,
+          })
+        }
+      } catch {}
+    }
+
+    return updated
   }
 
   async remove(id: string) {

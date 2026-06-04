@@ -54,8 +54,7 @@ const processes = ref<any[]>([])
 
 onMounted(async () => {
   try {
-    // TODO: filtrar por clientId do usuário logado
-    const all = await api.get<any[]>('/processes')
+    const all = await api.get<any[]>('/processes/my-processes')
     processes.value = all.slice(0, 5)
   } finally {
     loading.value = false

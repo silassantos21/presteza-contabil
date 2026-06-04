@@ -229,10 +229,20 @@ pnpm build:types
 
 **Por que dois formatos?** O `dist/index.js` antigo era CJS. O Vite serve arquivos de workspace via `@fs/` sem converter CJS → ESM, causando `does not provide an export named 'WS_EVENTS'` no browser. Com o `exports` field no `package.json` do pacote (`"import"` → ESM, `"require"` → CJS), cada consumidor recebe o formato correto automaticamente.
 
-O `nuxt.config.ts` tem `vite.optimizeDeps.include: ['@presteza/types']` como camada extra de segurança (força o Vite a pré-compilar pacotes de workspace CJS para ESM).
+O `nuxt.config.ts` aponta `@presteza/types` direto para o TypeScript source via alias Vite:
+```typescript
+vite: {
+  resolve: {
+    alias: { '@presteza/types': resolve(__dirname, '../../packages/types/src/index.ts') }
+  }
+}
+```
+**Nunca usar `vite.optimizeDeps.include` para pacotes de workspace próprios.** O `optimizeDeps.include` cria um snapshot em memória no arranque do dev server — se o dist for rebuiltado sem reiniciar o servidor, o Vite continua servindo a versão antiga. Isso causou um bug grave: `WS_EVENTS.JOIN_USER_ROOM` ficava `undefined` no browser, gerando loop de `forced close` no WebSocket. O alias Vite sempre lê o source em tempo real.
 
 **Regra para erros "Named export not found" em runtime:**
-`optimizeDeps.include` só funciona para pacotes diretamente acessíveis em `apps/web/node_modules`. Para dependências transitivas (pacotes puxados por outros pacotes), a solução correta é `pnpm.overrides` no `package.json` raiz — isso força a versão para todos os consumidores na árvore de dependências.
+- Pacote de **workspace próprio** (`packages/*`) → alias Vite para o `.ts` source (ver acima)
+- Pacote **externo direto** → `optimizeDeps.include`
+- Pacote **transitivo** (puxado por outro pacote) → `pnpm.overrides` no `package.json` raiz
 
 Exemplo já aplicado para `consola` (pacote CJS@2.x puxado por alguma dependência transitiva; Nuxt espera ESM@3.x):
 ```json
