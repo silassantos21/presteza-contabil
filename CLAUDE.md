@@ -224,13 +224,15 @@ definePageMeta({ layout: false })
 > **Atenção:** `min-h-dvh` **não existe** no Tailwind v3 (foi adicionado no v3.3). Usar `min-h-screen`.  
 > `layouts/default.vue` deve permanecer como `<slot />` simples — não colocar centering nele.
 
-**5. Layouts admin/portal: sempre incluir `w-screen` no div raiz.**  
-O `width: 100vw` é relativo à viewport, tornando o layout imune ao contexto flex do body. Sem ele, se o body herdou `display:flex` de uma página anterior durante navegação SPA, o layout vira um flex-item e fica deslocado na primeira renderização.  
+**5. Layouts admin/portal: usar `fixed inset-0` no div raiz — nunca `h-screen w-screen`.**  
+`position: fixed` com `inset: 0` ancora o div diretamente nos cantos do VIEWPORT, completamente imune a qualquer estado do container pai (body flex, margin, wrappers intermediários do NuxtLayout, etc). Com `h-screen w-screen`, o elemento ainda depende do contexto do pai — se durante a navegação SPA o pai tiver `display:flex; align-items:center`, o layout fica deslocado.
 ```vue
 <!-- ✅ Correto — layouts/admin.vue e layouts/portal.vue -->
+<div class="fixed inset-0 flex bg-background overflow-hidden">
+<!-- ❌ Nunca usar: -->
 <div class="flex h-screen w-screen bg-background overflow-hidden">
 ```
-**Nunca omitir `w-screen` nesses layouts.**
+`fixed inset-0` = `position:fixed; top:0; right:0; bottom:0; left:0` → dimensões do viewport sem depender do pai.
 
 **4. Tooltips do NavItem: usar atributo `title` nativo, não span absoluto.**  
 A implementação anterior colocava um `<span v-if="collapsed" class="absolute left-full ...">` para mostrar o label no hover. Esse span contribui para o `scrollWidth` do nav (mesmo com `opacity-0`), causando o scroll lateral descrito acima. O `NavItem` atual usa apenas `:title="collapsed ? label : undefined"` — o browser exibe o tooltip nativo, sem overflow.
