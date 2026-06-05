@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen w-screen bg-background overflow-hidden">
+  <div class="relative h-screen bg-background overflow-hidden">
     <!-- Overlay mobile -->
     <div
       v-if="mobileOpen"
@@ -7,12 +7,10 @@
       @click="mobileOpen = false"
     />
 
-    <!-- Sidebar -->
+    <!-- Sidebar: sempre fixed, nunca depende de flex-row do pai -->
     <aside
-      class="flex flex-col border-r border-border bg-card shrink-0 overflow-hidden
-             transition-all duration-200 ease-in-out
-             fixed inset-y-0 left-0 z-50
-             lg:relative lg:z-auto lg:inset-auto"
+      class="fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-card overflow-hidden
+             transition-all duration-200 ease-in-out"
       :class="[
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         sidebarCollapsed ? 'lg:w-16 w-[240px]' : 'w-[240px]',
@@ -106,8 +104,11 @@
       </div>
     </aside>
 
-    <!-- Conteúdo principal -->
-    <div class="flex flex-col flex-1 min-w-0">
+    <!-- Conteúdo principal: margin-left = largura do sidebar -->
+    <div
+      class="flex flex-col h-full transition-[margin-left] duration-200 ease-in-out"
+      :class="sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-[240px]'"
+    >
       <!-- Topbar -->
       <header class="flex items-center justify-between px-4 py-3 border-b border-border bg-card shrink-0">
         <!-- Hambúrguer (mobile only) -->
