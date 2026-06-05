@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-background overflow-hidden">
+  <div class="flex h-screen w-screen bg-background overflow-hidden">
     <!-- Overlay mobile -->
     <div
       v-if="mobileOpen"
