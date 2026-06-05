@@ -200,7 +200,16 @@ Esse padrão está implementado em: `processos.vue` (kanban), `portal/processos.
 CSS spec: quando um eixo é `auto`/`scroll`/`hidden` e o outro é `visible`, o `visible` é promovido silenciosamente para `auto`. O resultado é que qualquer conteúdo absoluto que ultrapasse o elemento (ex: tooltip `absolute left-full`) gera uma barra de scroll horizontal.  
 Regra atual: `<aside>` usa `overflow-hidden`; `<nav>` usa `overflow-y-auto` sem `overflow-x-visible`.
 
-**3. Nunca usar `useHead({ bodyAttrs: { style: 'display:flex...' } })` para centralizar páginas.**  
+**3. Após login, usar `window.location.href` — nunca `navigateTo()` — para navegar ao admin/portal.**  
+`navigateTo()` faz SPA navigation: `NuxtLayout` tem estado intermediário ao trocar de `layout: false` (login) para `layout: 'admin'` no cliente, causando layout visualmente quebrado no primeiro frame (topbar deslocada, conteúdo preto). `window.location.href` faz carregamento HTTP completo (SSR), idêntico ao reload manual.  
+```javascript
+// ✅ Correto — handleLogin() em login.vue:
+window.location.href = authStore.isAdmin ? '/admin' : '/portal'
+// ❌ Nunca:
+navigateTo('/admin')
+```
+
+**4 (antigo #3). Nunca usar `useHead({ bodyAttrs: { style: 'display:flex...' } })` para centralizar páginas.**  
 O Nuxt aplica `bodyAttrs` no elemento `<body>` globalmente. Durante navegação SPA (ex: login → /admin), o estilo do body persiste por um frame, fazendo o layout do admin virar um flex-item deslocado — conteúdo sumia e topbar aparecia no rodapé.  
 
 **Nunca usar `layouts/default.vue` para centralizar o login.** O Nuxt pode inserir elementos intermediários entre o slot do layout e o template da página (Suspense, RouterView, wrappers internos), quebrando o `justify-content: center` do flex pai — o conteúdo fica descentralizado ou esticado até a largura do viewport.
