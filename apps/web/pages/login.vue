@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-background px-4 py-8">
+  <div class="fixed inset-0 flex items-center justify-center bg-background overflow-auto px-4 py-8">
     <div class="w-full max-w-sm">
       <!-- Logo -->
       <div class="text-center mb-8">
