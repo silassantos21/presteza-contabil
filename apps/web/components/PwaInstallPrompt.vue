@@ -38,7 +38,21 @@ async function handleInstall() {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const prompt = $pwa.installEvent.value as any
+  let prompt = $pwa.installEvent.value as any
+
+  if (!prompt) {
+    // Evento ainda não chegou: aguarda até 5s antes de desistir
+    installing.value = true
+    await new Promise<void>((resolve) => {
+      const stop = watch(
+        () => $pwa.installEvent.value,
+        (evt) => { if (evt) { prompt = evt; stop(); resolve() } },
+      )
+      setTimeout(() => { stop(); resolve() }, 5000)
+    })
+    installing.value = false
+  }
+
   if (prompt) {
     installing.value = true
     prompt.prompt()
@@ -52,7 +66,7 @@ async function handleInstall() {
     return
   }
 
-  // Browser não disparou beforeinstallprompt ainda — mostra instruções manuais
+  // Chrome não suporta instalação neste browser — cai para instruções manuais
   showIosInstructions.value = true
 }
 
