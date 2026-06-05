@@ -138,7 +138,7 @@ function dismissOpenBanner() {
       class="fixed bottom-4 left-4 right-4 z-[100] sm:left-auto sm:right-4 sm:w-80
              bg-card border border-border rounded-xl shadow-lg p-4 flex items-start gap-3"
     >
-      <img src="/pwa_icon.svg" alt="Presteza" class="w-10 h-10 rounded-lg shrink-0" />
+      <img src="/pwa_icon_192.png" alt="Presteza" class="w-10 h-10 rounded-lg shrink-0" />
       <div class="flex-1 min-w-0">
         <p class="text-sm font-semibold text-foreground">Instalar Presteza Contábil</p>
         <p class="text-xs text-muted-foreground mt-0.5">
@@ -178,7 +178,7 @@ function dismissOpenBanner() {
     >
       <div class="bg-card border border-border rounded-2xl p-6 w-full sm:max-w-sm">
         <div class="flex items-center gap-3 mb-5">
-          <img src="/pwa_icon.svg" alt="Presteza" class="w-12 h-12 rounded-xl" />
+          <img src="/pwa_icon_192.png" alt="Presteza" class="w-12 h-12 rounded-xl" />
           <div>
             <h3 class="font-semibold text-foreground">Instalar no iPhone</h3>
             <p class="text-xs text-muted-foreground">Siga os passos abaixo no Safari</p>

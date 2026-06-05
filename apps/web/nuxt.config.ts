@@ -114,10 +114,16 @@ export default defineNuxtConfig({
       start_url: '/login',
       icons: [
         {
-          src: '/pwa_icon.svg',
-          sizes: 'any',
-          type: 'image/svg+xml',
-          purpose: 'any maskable',
+          src: '/pwa_icon_192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/pwa_icon_512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable',
         },
       ],
     },
@@ -144,7 +150,7 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-        { rel: 'apple-touch-icon', href: '/pwa_icon.svg' },
+        { rel: 'apple-touch-icon', href: '/pwa_icon_192.png' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         {
           rel: 'stylesheet',
