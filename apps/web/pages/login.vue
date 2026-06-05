@@ -86,8 +86,9 @@ async function handleLogin() {
       body: form,
     })
     authStore.setAuth(data)
-    if (authStore.isAdmin) navigateTo('/admin')
-    else navigateTo('/portal')
+    // window.location.href força carregamento completo (SSR), eliminando
+    // qualquer glitch de layout do NuxtLayout durante transição SPA.
+    window.location.href = authStore.isAdmin ? '/admin' : '/portal'
   } catch (e: any) {
     error.value = e?.data?.message || 'E-mail ou senha incorretos'
   } finally {
