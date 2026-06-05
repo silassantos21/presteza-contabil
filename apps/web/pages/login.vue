@@ -55,6 +55,14 @@
         <p>👤 Admin: <span class="font-mono">admin@presteza.com.br</span> / <span class="font-mono">admin123</span></p>
         <p>👤 Cliente: <span class="font-mono">cliente@exemplo.com.br</span> / <span class="font-mono">cliente123</span></p>
       </div>
+
+      <!-- Aviso LGPD -->
+      <p class="mt-6 text-center text-xs text-muted-foreground leading-relaxed">
+        Ao acessar o sistema, você concorda com o tratamento dos seus dados
+        para prestação dos serviços contábeis, conforme a
+        <span class="font-medium">Lei nº 13.709/2018 (LGPD)</span>.
+        Dúvidas: <a href="mailto:silasribeiro11@gmail.com" class="underline underline-offset-2 hover:text-foreground transition-colors">silasribeiro11@gmail.com</a>
+      </p>
     </div>
   </div>
 </template>

@@ -214,6 +214,7 @@
       </main>
     </div>
   </div>
+  <PwaInstallPrompt />
 </template>
 
 <script setup lang="ts">

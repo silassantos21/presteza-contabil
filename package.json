@@ -14,7 +14,9 @@
   "pnpm": {
     "overrides": {
       "@vue-macros/common": "1.10.0",
-      "consola": ">=3.0.0"
+      "consola": ">=3.0.0",
+      "@vitejs/plugin-vue": "5.0.4",
+      "vite-plugin-vue-inspector": "5.3.1"
     },
     "onlyBuiltDependencies": [
       "@nestjs/core",

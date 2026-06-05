@@ -224,6 +224,45 @@ Adaptar todas as páginas e layouts para funcionar corretamente em dispositivos 
 
 ---
 
+## ✅ Sprint 9 — PWA, Identidade Visual, Dashboard e Configurações
+**Status:** Concluída
+**Data conclusão:** 05/06/2026
+
+### O que foi feito
+
+#### Identidade visual (04/06/2026)
+- [x] `apps/web/assets/images/logo-full.svg` — logo com nome + símbolo
+- [x] `apps/web/assets/images/logo-symbol.svg` — somente o símbolo
+- [x] `apps/web/public/favicon.svg` — ícone da aba do browser
+- [x] `admin.vue` e `portal.vue` — sidebar exibe símbolo colapsada, logo completo expandida
+- [x] `login.vue` — substitui placeholder pelo logo completo
+- [x] Dark mode: `dark:brightness-0 dark:invert` converte logo para branco monocromático
+
+#### PWA — instalação no celular (05/06/2026)
+- [x] `@vite-pwa/nuxt` instalado (carregado apenas em produção)
+- [x] Manifest PWA: nome, ícones, `start_url`, `theme_color`, orientação portrait
+- [x] `apps/web/public/pwa-icon.svg` — ícone do app na tela inicial
+- [x] Apple meta tags (`apple-mobile-web-app-capable`, `apple-touch-icon`)
+- [x] Componente `PwaInstallPrompt.vue` — banner flutuante com:
+  - Android/Chrome: captura `beforeinstallprompt`, botão "Instalar" nativo
+  - iOS/Safari: modal com instruções passo a passo (Share → Adicionar à Tela de Início)
+  - Dispensado via `localStorage`, não reaparece após fechar
+  - Não exibido se app já está instalado (standalone mode)
+- [x] `<PwaInstallPrompt>` adicionado nos layouts `admin.vue` e `portal.vue`
+- [x] Fix: monkey-patch `nuxt:components:imports` via plugin Vite customizado para guardar IDs de módulos virtuais (`\0prefix`) que causavam `Pre-transform error` após instalação do `@vite-pwa/nuxt`
+
+#### Dashboard admin com atividade real (05/06/2026)
+- [x] `GET /users/activity/recent` — endpoint que retorna últimos processos e documentos mesclados e ordenados por data
+- [x] `pages/admin/index.vue` — seção "Atividade recente" substituída por feed real com ícones por tipo (processo/documento), subtítulo com cliente e detalhe, tempo relativo
+
+#### Página de configurações (05/06/2026)
+- [x] `PATCH /users/me` na API — atualiza nome, e-mail (com verificação de unicidade) e senha (verifica senha atual via bcrypt antes de alterar)
+- [x] `pages/admin/configuracoes.vue` — dois cards:
+  - "Dados do perfil": campos nome e e-mail com feedback de sucesso/erro
+  - "Alterar senha": senha atual + nova + confirmação com validação client-side e server-side
+
+---
+
 ## Legenda de Status
 | Ícone | Significado |
 |---|---|
