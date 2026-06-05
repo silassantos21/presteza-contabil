@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { X, Share, PlusSquare } from 'lucide-vue-next'
+import { X, Share, PlusSquare, Smartphone } from 'lucide-vue-next'
 
-const DISMISSED_KEY = 'presteza_pwa_dismissed'
+// v2 — reseta dismissals de sessões anteriores
+const INSTALL_KEY = 'presteza_pwa_dismissed_v2'
+const OPEN_KEY = 'presteza_pwa_open_dismissed'
 
-const showBanner = ref(false)
+const { $pwa } = useNuxtApp() as any
+
+const showInstallBanner = ref(false)
+const showOpenBanner = ref(false)
 const showIosModal = ref(false)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const deferredPrompt = ref<any>(null)
 
 const isIos = computed(() => {
   if (!import.meta.client) return false
@@ -24,20 +27,40 @@ const isStandalone = computed(() => {
 
 onMounted(() => {
   if (isStandalone.value) return
-  if (localStorage.getItem(DISMISSED_KEY)) return
 
+  // Se o app está instalado mas o usuário está no browser, mostra banner de abertura
+  if (!localStorage.getItem(OPEN_KEY)) {
+    const stopOpen = watch(
+      () => $pwa.isInstalled.value,
+      (installed) => {
+        if (installed) {
+          setTimeout(() => { showOpenBanner.value = true }, 1500)
+          stopOpen()
+        }
+      },
+      { immediate: true },
+    )
+  }
+
+  if (localStorage.getItem(INSTALL_KEY)) return
+
+  // iOS: sempre mostra instruções de adição à tela inicial
   if (isIos.value) {
-    setTimeout(() => { showBanner.value = true }, 3000)
+    setTimeout(() => { showInstallBanner.value = true }, 3000)
     return
   }
 
-  const handler = (e: Event) => {
-    e.preventDefault()
-    deferredPrompt.value = e
-    setTimeout(() => { showBanner.value = true }, 3000)
-  }
-  window.addEventListener('beforeinstallprompt', handler)
-  onUnmounted(() => window.removeEventListener('beforeinstallprompt', handler))
+  // Android/Desktop: aguarda o evento capturado pelo plugin
+  const stopInstall = watch(
+    () => $pwa.installEvent.value,
+    (evt) => {
+      if (evt) {
+        setTimeout(() => { showInstallBanner.value = true }, 3000)
+        stopInstall()
+      }
+    },
+    { immediate: true },
+  )
 })
 
 async function handleInstall() {
@@ -45,28 +68,73 @@ async function handleInstall() {
     showIosModal.value = true
     return
   }
-  if (!deferredPrompt.value) return
-  deferredPrompt.value.prompt()
-  const { outcome } = await deferredPrompt.value.userChoice
-  deferredPrompt.value = null
-  showBanner.value = false
-  if (outcome === 'accepted') {
-    localStorage.setItem(DISMISSED_KEY, '1')
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const prompt = $pwa.installEvent.value as any
+  if (!prompt) return
+  prompt.prompt()
+  const { outcome } = await prompt.userChoice
+  $pwa.installEvent.value = null
+  showInstallBanner.value = false
+  if (outcome === 'accepted') localStorage.setItem(INSTALL_KEY, '1')
 }
 
-function dismiss() {
-  showBanner.value = false
+function dismissInstall() {
+  showInstallBanner.value = false
   showIosModal.value = false
-  localStorage.setItem(DISMISSED_KEY, '1')
+  localStorage.setItem(INSTALL_KEY, '1')
+}
+
+function handleOpenApp() {
+  dismissOpenBanner()
+  // Chrome no Android pode interceptar a navegação e abrir o PWA instalado
+  window.location.href = window.location.origin + '/login'
+}
+
+function dismissOpenBanner() {
+  showOpenBanner.value = false
+  localStorage.setItem(OPEN_KEY, '1')
 }
 </script>
 
 <template>
-  <!-- Banner flutuante -->
+  <!-- Banner: app já instalado, usuário está no browser -->
   <Transition name="slide-up">
     <div
-      v-if="showBanner"
+      v-if="showOpenBanner"
+      class="fixed bottom-4 left-4 right-4 z-[100] sm:left-auto sm:right-4 sm:w-80
+             bg-primary text-primary-foreground rounded-xl shadow-lg p-4 flex items-start gap-3"
+    >
+      <Smartphone class="w-5 h-5 shrink-0 mt-0.5 opacity-90" />
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold">App instalado</p>
+        <p class="text-xs opacity-80 mt-0.5 leading-relaxed">
+          Abra o Presteza Contábil pelo ícone na tela inicial para a melhor experiência.
+        </p>
+        <div class="flex gap-2 mt-3">
+          <button
+            class="flex-1 bg-white/20 hover:bg-white/30 text-xs font-medium rounded-lg px-3 py-2 transition-colors"
+            @click="handleOpenApp"
+          >
+            Abrir no app
+          </button>
+          <button
+            class="text-xs opacity-70 hover:opacity-100 px-3 py-2 transition-opacity"
+            @click="dismissOpenBanner"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+      <button class="opacity-70 hover:opacity-100 shrink-0 -mt-0.5" @click="dismissOpenBanner">
+        <X class="w-4 h-4" />
+      </button>
+    </div>
+  </Transition>
+
+  <!-- Banner: instalar o app -->
+  <Transition name="slide-up">
+    <div
+      v-if="showInstallBanner"
       class="fixed bottom-4 left-4 right-4 z-[100] sm:left-auto sm:right-4 sm:w-80
              bg-card border border-border rounded-xl shadow-lg p-4 flex items-start gap-3"
     >
@@ -86,7 +154,7 @@ function dismiss() {
           </button>
           <button
             class="text-xs text-muted-foreground px-3 py-2 hover:text-foreground transition-colors"
-            @click="dismiss"
+            @click="dismissInstall"
           >
             Agora não
           </button>
@@ -94,14 +162,14 @@ function dismiss() {
       </div>
       <button
         class="text-muted-foreground hover:text-foreground shrink-0 -mt-0.5"
-        @click="dismiss"
+        @click="dismissInstall"
       >
         <X class="w-4 h-4" />
       </button>
     </div>
   </Transition>
 
-  <!-- Modal de instruções iOS -->
+  <!-- Modal: instruções iOS -->
   <Transition name="fade">
     <div
       v-if="showIosModal"
@@ -150,7 +218,7 @@ function dismiss() {
         <button
           class="w-full mt-6 bg-primary text-primary-foreground text-sm font-medium rounded-lg
                  py-2.5 hover:opacity-90 transition-opacity"
-          @click="dismiss"
+          @click="dismissInstall"
         >
           Entendido
         </button>
