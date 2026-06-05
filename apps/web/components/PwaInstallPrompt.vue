@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { Download, Share, PlusSquare } from 'lucide-vue-next'
+import { Download, Share, PlusSquare, CheckCircle } from 'lucide-vue-next'
 
-// v3 — novo comportamento (modal persistente)
+// v3 — modal persistente
 const INSTALL_KEY = 'presteza_pwa_dismissed_v3'
 
 const { $pwaInstall: $pwa } = useNuxtApp() as any
 
 const showModal = ref(false)
 const showIosInstructions = ref(false)
+const showAlreadyInstalled = ref(false)
 const installing = ref(false)
 
 const isIos = computed(() => {
@@ -27,7 +28,6 @@ const isStandalone = computed(() => {
 onMounted(() => {
   if (isStandalone.value) return
   if (localStorage.getItem(INSTALL_KEY)) return
-  // Exibe imediatamente — sem delay, sem depender do beforeinstallprompt
   showModal.value = true
 })
 
@@ -41,7 +41,6 @@ async function handleInstall() {
   let prompt = $pwa.installEvent.value as any
 
   if (!prompt) {
-    // Evento ainda não chegou: aguarda até 5s antes de desistir
     installing.value = true
     await new Promise<void>((resolve) => {
       const stop = watch(
@@ -66,40 +65,34 @@ async function handleInstall() {
     return
   }
 
-  // Chrome não suporta instalação neste browser — cai para instruções manuais
-  showIosInstructions.value = true
+  // beforeinstallprompt não disparou: app provavelmente já instalado
+  showAlreadyInstalled.value = true
 }
 
 function dismiss() {
   showModal.value = false
   showIosInstructions.value = false
+  showAlreadyInstalled.value = false
   localStorage.setItem(INSTALL_KEY, '1')
 }
 </script>
 
 <template>
-  <!-- Modal de instalação — overlay persistente, só fecha pelos botões -->
+  <!-- Modal principal de instalação -->
   <Transition name="fade">
     <div
-      v-if="showModal && !showIosInstructions"
+      v-if="showModal && !showIosInstructions && !showAlreadyInstalled"
       class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-6"
     >
       <div class="bg-card border border-border rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
-        <!-- Ícone do app -->
         <div class="flex justify-center pt-8 pb-2">
-          <img
-            src="/pwa_icon_192.png"
-            alt="Presteza"
-            class="w-20 h-20 rounded-2xl shadow-lg"
-          />
+          <img src="/pwa_icon_192.png" alt="Presteza" class="w-20 h-20 rounded-2xl shadow-lg" />
         </div>
 
-        <!-- Ícone de download -->
         <div class="flex justify-center mt-5">
           <Download class="w-9 h-9 text-primary" stroke-width="1.75" />
         </div>
 
-        <!-- Textos -->
         <div class="text-center px-6 mt-3">
           <h2 class="text-xl font-bold text-foreground">Instalar o app</h2>
           <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
@@ -107,7 +100,6 @@ function dismiss() {
           </p>
         </div>
 
-        <!-- Botões -->
         <div class="px-6 pb-6 mt-6 space-y-3">
           <button
             class="w-full bg-primary text-primary-foreground font-semibold rounded-xl py-3.5 text-sm
@@ -115,7 +107,7 @@ function dismiss() {
             :disabled="installing"
             @click="handleInstall"
           >
-            {{ installing ? 'Instalando...' : 'Instalar' }}
+            {{ installing ? 'Aguardando instalador...' : 'Instalar' }}
           </button>
           <button
             class="w-full text-muted-foreground text-sm py-2 hover:text-foreground transition-colors"
@@ -128,7 +120,43 @@ function dismiss() {
     </div>
   </Transition>
 
-  <!-- Modal de instruções iOS / fallback -->
+  <!-- App já instalado (beforeinstallprompt não disparou) -->
+  <Transition name="fade">
+    <div
+      v-if="showAlreadyInstalled"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-6"
+    >
+      <div class="bg-card border border-border rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+        <div class="flex justify-center pt-8">
+          <img src="/pwa_icon_192.png" alt="Presteza" class="w-20 h-20 rounded-2xl shadow-lg" />
+        </div>
+
+        <div class="flex justify-center mt-5">
+          <CheckCircle class="w-9 h-9 text-green-500" stroke-width="1.75" />
+        </div>
+
+        <div class="text-center px-6 mt-3">
+          <h2 class="text-xl font-bold text-foreground">App já instalado</h2>
+          <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
+            O Presteza Contábil já está instalado no seu dispositivo.
+            Procure pelo ícone na sua tela inicial ou gaveta de apps.
+          </p>
+        </div>
+
+        <div class="px-6 pb-6 mt-6">
+          <button
+            class="w-full bg-primary text-primary-foreground font-semibold rounded-xl py-3.5 text-sm
+                   hover:opacity-90 transition-opacity"
+            @click="dismiss"
+          >
+            Entendido
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
+
+  <!-- Instruções iOS -->
   <Transition name="fade">
     <div
       v-if="showIosInstructions"
@@ -139,49 +167,25 @@ function dismiss() {
           <img src="/pwa_icon_192.png" alt="Presteza" class="w-12 h-12 rounded-xl" />
           <div>
             <h3 class="font-semibold text-foreground">Adicionar à tela inicial</h3>
-            <p class="text-xs text-muted-foreground">
-              {{ isIos ? 'Siga os passos no Safari' : 'Siga os passos no seu browser' }}
-            </p>
+            <p class="text-xs text-muted-foreground">Siga os passos no Safari</p>
           </div>
         </div>
-
-        <template v-if="isIos">
-          <ol class="space-y-4 text-sm text-foreground">
-            <li class="flex items-start gap-3">
-              <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</span>
-              <span>Toque no ícone <Share class="inline w-4 h-4 mx-0.5 -mt-0.5 text-blue-500" /> <strong>Compartilhar</strong> na barra inferior do Safari</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</span>
-              <span>Role para baixo e toque em <PlusSquare class="inline w-4 h-4 mx-0.5 -mt-0.5" /> <strong>"Adicionar à Tela de Início"</strong></span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</span>
-              <span>Toque em <strong>"Adicionar"</strong> no canto superior direito</span>
-            </li>
-          </ol>
-        </template>
-
-        <template v-else>
-          <ol class="space-y-4 text-sm text-foreground">
-            <li class="flex items-start gap-3">
-              <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</span>
-              <span>Abra o menu do browser (ícone <strong>⋮</strong> ou <strong>···</strong>)</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</span>
-              <span>Toque em <strong>"Adicionar à tela inicial"</strong> ou <strong>"Instalar app"</strong></span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</span>
-              <span>Confirme tocando em <strong>"Adicionar"</strong></span>
-            </li>
-          </ol>
-        </template>
-
+        <ol class="space-y-4 text-sm text-foreground">
+          <li class="flex items-start gap-3">
+            <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</span>
+            <span>Toque no ícone <Share class="inline w-4 h-4 mx-0.5 -mt-0.5 text-blue-500" /> <strong>Compartilhar</strong> na barra inferior do Safari</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</span>
+            <span>Role para baixo e toque em <PlusSquare class="inline w-4 h-4 mx-0.5 -mt-0.5" /> <strong>"Adicionar à Tela de Início"</strong></span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</span>
+            <span>Toque em <strong>"Adicionar"</strong> no canto superior direito</span>
+          </li>
+        </ol>
         <button
-          class="w-full mt-6 bg-primary text-primary-foreground text-sm font-medium rounded-xl
-                 py-3 hover:opacity-90 transition-opacity"
+          class="w-full mt-6 bg-primary text-primary-foreground text-sm font-medium rounded-xl py-3 hover:opacity-90 transition-opacity"
           @click="dismiss"
         >
           Entendido
