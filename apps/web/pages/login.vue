@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full max-w-sm px-4 mx-auto">
-    <div class="w-full">
+  <div class="min-h-dvh flex items-center justify-center px-4 bg-background">
+    <div class="w-full max-w-sm">
       <!-- Logo -->
       <div class="text-center mb-8">
         <img
@@ -71,10 +71,7 @@
 definePageMeta({ layout: 'default' })
 
 useHead({
-  bodyAttrs: {
-    class: 'bg-background',
-    style: 'min-height:100dvh;display:flex;align-items:center;justify-content:center;',
-  },
+  bodyAttrs: { class: 'bg-background' },
 })
 
 const authStore = useAuthStore()

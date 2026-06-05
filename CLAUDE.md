@@ -200,7 +200,22 @@ Esse padrão está implementado em: `processos.vue` (kanban), `portal/processos.
 CSS spec: quando um eixo é `auto`/`scroll`/`hidden` e o outro é `visible`, o `visible` é promovido silenciosamente para `auto`. O resultado é que qualquer conteúdo absoluto que ultrapasse o elemento (ex: tooltip `absolute left-full`) gera uma barra de scroll horizontal.  
 Regra atual: `<aside>` usa `overflow-hidden`; `<nav>` usa `overflow-y-auto` sem `overflow-x-visible`.
 
-**3. Tooltips do NavItem: usar atributo `title` nativo, não span absoluto.**  
+**3. Nunca usar `useHead({ bodyAttrs: { style: 'display:flex...' } })` para centralizar páginas.**  
+O Nuxt aplica `bodyAttrs` no elemento `<body>` globalmente. Durante navegação SPA (ex: login → /admin), o estilo do body da página anterior persiste por um frame, fazendo o layout do admin virar um flex-item deslocado — conteúdo sumia e topbar aparecia no rodapé.  
+Regra: centralização deve ficar no próprio template da página, não no body.  
+```vue
+<!-- ✅ Correto — centering no componente -->
+<template>
+  <div class="min-h-dvh flex items-center justify-center px-4 bg-background">
+    <div class="w-full max-w-sm">...</div>
+  </div>
+</template>
+<script setup>
+useHead({ bodyAttrs: { class: 'bg-background' } }) <!-- só classe, nunca style com display -->
+</script>
+```
+
+**4. Tooltips do NavItem: usar atributo `title` nativo, não span absoluto.**  
 A implementação anterior colocava um `<span v-if="collapsed" class="absolute left-full ...">` para mostrar o label no hover. Esse span contribui para o `scrollWidth` do nav (mesmo com `opacity-0`), causando o scroll lateral descrito acima. O `NavItem` atual usa apenas `:title="collapsed ? label : undefined"` — o browser exibe o tooltip nativo, sem overflow.
 
 ---
