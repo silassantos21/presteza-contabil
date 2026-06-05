@@ -118,12 +118,12 @@ npm run dev    # nuxt dev --port 3000
 | `/portal/chat` | `pages/portal/chat.vue` | ✅ chat direto com o escritório |
 | `/portal/documentos` | `pages/portal/documentos.vue` | ✅ grid de cards, busca, download |
 | `/portal/processos` | `pages/portal/processos.vue` | ✅ lista agrupada por status |
+| `/admin/configuracoes` | `pages/admin/configuracoes.vue` | ✅ perfil + alterar senha |
 
 ### Páginas pendentes (links existem na sidebar, mas sem arquivo)
 
 **Admin:**
 - `/admin/relatorios`
-- `/admin/configuracoes`
 
 ### Layouts
 - `layouts/default.vue` — layout mínimo (usado no login)
@@ -202,18 +202,35 @@ Regra atual: `<aside>` usa `overflow-hidden`; `<nav>` usa `overflow-y-auto` sem 
 
 **3. Nunca usar `useHead({ bodyAttrs: { style: 'display:flex...' } })` para centralizar páginas.**  
 O Nuxt aplica `bodyAttrs` no elemento `<body>` globalmente. Durante navegação SPA (ex: login → /admin), o estilo do body da página anterior persiste por um frame, fazendo o layout do admin virar um flex-item deslocado — conteúdo sumia e topbar aparecia no rodapé.  
-Regra: centralização deve ficar no próprio template da página, não no body.  
+Regra: centralização deve ficar no **layout**, não no body.  
+O padrão correto: `layouts/default.vue` provê o centering; a página retorna apenas o conteúdo:
 ```vue
-<!-- ✅ Correto — centering no componente -->
+<!-- ✅ Correto — layouts/default.vue (wraps o slot da página) -->
 <template>
-  <div class="min-h-dvh flex items-center justify-center px-4 bg-background">
-    <div class="w-full max-w-sm">...</div>
+  <div class="min-h-screen w-full flex items-center justify-center bg-background px-4 py-8">
+    <slot />
   </div>
 </template>
+
+<!-- ✅ Correto — pages/login.vue (só o conteúdo) -->
+<template>
+  <div class="w-full max-w-sm">...</div>
+</template>
 <script setup>
+definePageMeta({ layout: 'default' })
 useHead({ bodyAttrs: { class: 'bg-background' } }) <!-- só classe, nunca style com display -->
 </script>
 ```
+
+> **Atenção:** `min-h-dvh` **não existe** no Tailwind v3 (foi adicionado no v3.3). Usar `min-h-screen` no lugar.
+
+**5. Layouts admin/portal: sempre incluir `w-screen` no div raiz.**  
+O `width: 100vw` é relativo à viewport, tornando o layout imune ao contexto flex do body. Sem ele, se o body herdou `display:flex` de uma página anterior durante navegação SPA, o layout vira um flex-item e fica deslocado na primeira renderização.  
+```vue
+<!-- ✅ Correto — layouts/admin.vue e layouts/portal.vue -->
+<div class="flex h-screen w-screen bg-background overflow-hidden">
+```
+**Nunca omitir `w-screen` nesses layouts.**
 
 **4. Tooltips do NavItem: usar atributo `title` nativo, não span absoluto.**  
 A implementação anterior colocava um `<span v-if="collapsed" class="absolute left-full ...">` para mostrar o label no hover. Esse span contribui para o `scrollWidth` do nav (mesmo com `opacity-0`), causando o scroll lateral descrito acima. O `NavItem` atual usa apenas `:title="collapsed ? label : undefined"` — o browser exibe o tooltip nativo, sem overflow.
