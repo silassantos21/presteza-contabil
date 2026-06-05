@@ -201,28 +201,28 @@ CSS spec: quando um eixo é `auto`/`scroll`/`hidden` e o outro é `visible`, o `
 Regra atual: `<aside>` usa `overflow-hidden`; `<nav>` usa `overflow-y-auto` sem `overflow-x-visible`.
 
 **3. Nunca usar `useHead({ bodyAttrs: { style: 'display:flex...' } })` para centralizar páginas.**  
-O Nuxt aplica `bodyAttrs` no elemento `<body>` globalmente. Durante navegação SPA (ex: login → /admin), o estilo do body da página anterior persiste por um frame, fazendo o layout do admin virar um flex-item deslocado — conteúdo sumia e topbar aparecia no rodapé.  
-Regra: centralização deve ficar no **layout**, não no body.  
-O padrão correto: `layouts/default.vue` provê o centering; a página retorna apenas o conteúdo:
+O Nuxt aplica `bodyAttrs` no elemento `<body>` globalmente. Durante navegação SPA (ex: login → /admin), o estilo do body persiste por um frame, fazendo o layout do admin virar um flex-item deslocado — conteúdo sumia e topbar aparecia no rodapé.  
+
+**Nunca usar `layouts/default.vue` para centralizar o login.** O Nuxt pode inserir elementos intermediários entre o slot do layout e o template da página (Suspense, RouterView, wrappers internos), quebrando o `justify-content: center` do flex pai — o conteúdo fica descentralizado ou esticado até a largura do viewport.
+
+O padrão correto e definitivo é `definePageMeta({ layout: false })` na página de login, com todo o centering dentro do próprio template:
 ```vue
-<!-- ✅ Correto — layouts/default.vue (wraps o slot da página) -->
+<!-- ✅ Correto — pages/login.vue (autossuficiente, sem layout) -->
 <template>
-  <div class="min-h-screen w-full flex items-center justify-center bg-background px-4 py-8">
-    <slot />
+  <div class="min-h-screen flex items-center justify-center bg-background px-4 py-8">
+    <div class="w-full max-w-sm">
+      <!-- conteúdo do formulário -->
+    </div>
   </div>
 </template>
-
-<!-- ✅ Correto — pages/login.vue (só o conteúdo) -->
-<template>
-  <div class="w-full max-w-sm">...</div>
-</template>
 <script setup>
-definePageMeta({ layout: 'default' })
-useHead({ bodyAttrs: { class: 'bg-background' } }) <!-- só classe, nunca style com display -->
+definePageMeta({ layout: false })
+<!-- Sem useHead para bodyAttrs: o body já tem bg-background via CSS global (main.css) -->
 </script>
 ```
 
-> **Atenção:** `min-h-dvh` **não existe** no Tailwind v3 (foi adicionado no v3.3). Usar `min-h-screen` no lugar.
+> **Atenção:** `min-h-dvh` **não existe** no Tailwind v3 (foi adicionado no v3.3). Usar `min-h-screen`.  
+> `layouts/default.vue` deve permanecer como `<slot />` simples — não colocar centering nele.
 
 **5. Layouts admin/portal: sempre incluir `w-screen` no div raiz.**  
 O `width: 100vw` é relativo à viewport, tornando o layout imune ao contexto flex do body. Sem ele, se o body herdou `display:flex` de uma página anterior durante navegação SPA, o layout vira um flex-item e fica deslocado na primeira renderização.  
