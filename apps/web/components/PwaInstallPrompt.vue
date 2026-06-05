@@ -5,7 +5,7 @@ import { X, Share, PlusSquare, Smartphone } from 'lucide-vue-next'
 const INSTALL_KEY = 'presteza_pwa_dismissed_v2'
 const OPEN_KEY = 'presteza_pwa_open_dismissed'
 
-const { $pwa } = useNuxtApp() as any
+const { $pwaInstall: $pwa } = useNuxtApp() as any
 
 const showInstallBanner = ref(false)
 const showOpenBanner = ref(false)

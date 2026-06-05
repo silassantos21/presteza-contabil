@@ -21,7 +21,7 @@ export default defineNuxtPlugin(() => {
 
   return {
     provide: {
-      pwa: { installEvent, isInstalled },
+      pwaInstall: { installEvent, isInstalled },
     },
   }
 })
