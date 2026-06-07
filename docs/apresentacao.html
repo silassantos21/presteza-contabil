@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Presteza Contábil — Apresentação do Sistema</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @page { size: A4; margin: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #fff;
+    color: #0f172a;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ── Variáveis ── */
+  :root {
+    --blue-400: #60a5fa;
+    --blue-600: #2563eb;
+    --blue-700: #1d4ed8;
+    --blue-800: #1e40af;
+    --blue-900: #1e3a8a;
+    --slate-50:  #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+    --green-500: #22c55e;
+    --amber-500: #f59e0b;
+    --red-400:   #f87171;
+    --grad: linear-gradient(135deg, #60a5fa 0%, #1e40af 100%);
+  }
+
+  /* ── Páginas A4 ── */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: avoid; }
+
+  /* ═══════════════════════════════════
+     CAPA
+  ═══════════════════════════════════ */
+  .cover {
+    background: var(--grad);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 297mm;
+    color: #fff;
+    text-align: center;
+    padding: 40px;
+  }
+  .cover-logo {
+    width: 96px; height: 96px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 28px;
+    backdrop-filter: blur(4px);
+    border: 2px solid rgba(255,255,255,0.25);
+  }
+  .cover h1 {
+    font-size: 42px; font-weight: 800; letter-spacing: -1px;
+    line-height: 1.1; margin-bottom: 12px;
+  }
+  .cover .subtitle {
+    font-size: 16px; font-weight: 400; opacity: 0.85;
+    letter-spacing: 0.5px; margin-bottom: 48px;
+  }
+  .cover-divider {
+    width: 60px; height: 3px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 2px; margin-bottom: 48px;
+  }
+  .cover-tags {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+  }
+  .cover-tag {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 13px; font-weight: 500;
+    letter-spacing: 0.2px;
+    backdrop-filter: blur(4px);
+  }
+  .cover-footer {
+    position: absolute; bottom: 32px;
+    left: 0; right: 0; text-align: center;
+    font-size: 12px; opacity: 0.6;
+  }
+  .cover-wave {
+    position: absolute; bottom: 0; left: 0; right: 0;
+  }
+
+  /* ═══════════════════════════════════
+     LAYOUT DE PÁGINA INTERNA
+  ═══════════════════════════════════ */
+  .inner {
+    padding: 44px 48px;
+    display: flex; flex-direction: column;
+    min-height: 297mm;
+  }
+  .page-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 36px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--slate-100);
+  }
+  .page-header-icon {
+    width: 44px; height: 44px;
+    background: var(--grad);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .page-header h2 {
+    font-size: 24px; font-weight: 700; color: var(--slate-900);
+    letter-spacing: -0.5px;
+  }
+  .page-header .sub { font-size: 13px; color: var(--slate-500); margin-top: 2px; }
+
+  /* ── Seção de texto ── */
+  .section-title {
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--blue-600);
+    margin-bottom: 12px; margin-top: 24px;
+  }
+  .section-title:first-of-type { margin-top: 0; }
+
+  p.body { font-size: 14px; line-height: 1.7; color: var(--slate-600); }
+
+  /* ── Cards de feature ── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .feature-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .feat-card {
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .feat-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 18px;
+  }
+  .feat-icon.blue  { background: #dbeafe; }
+  .feat-icon.green { background: #dcfce7; }
+  .feat-icon.amber { background: #fef3c7; }
+  .feat-icon.purple{ background: #ede9fe; }
+  .feat-icon.teal  { background: #ccfbf1; }
+  .feat-icon.rose  { background: #ffe4e6; }
+  .feat-icon.indigo{ background: #e0e7ff; }
+  .feat-icon.sky   { background: #e0f2fe; }
+
+  .feat-card h3 { font-size: 14px; font-weight: 600; color: var(--slate-800); margin-bottom: 4px; }
+  .feat-card p  { font-size: 12.5px; color: var(--slate-500); line-height: 1.55; }
+
+  /* ── Pill de destaque ── */
+  .highlight-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1px solid #bfdbfe;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-top: 16px;
+  }
+  .highlight-box h3 { font-size: 15px; font-weight: 700; color: var(--blue-800); margin-bottom: 6px; }
+  .highlight-box p  { font-size: 13px; color: var(--blue-700); line-height: 1.6; }
+
+  /* ── Status badge ── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 600;
+  }
+  .badge.pending  { background:#fef3c7; color:#92400e; }
+  .badge.progress { background:#dbeafe; color:#1e40af; }
+  .badge.done     { background:#dcfce7; color:#166534; }
+  .badge.cancelled{ background:#f1f5f9; color:#64748b; }
+
+  /* ── KPI cards ── */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px; }
+  .kpi-card {
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    border-radius: 12px;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .kpi-card .kpi-num {
+    font-size: 28px; font-weight: 800; color: var(--blue-600);
+    letter-spacing: -1px; display: block;
+  }
+  .kpi-card .kpi-label {
+    font-size: 11px; color: var(--slate-500); margin-top: 2px;
+    font-weight: 500;
+  }
+
+  /* ── Stack tech ── */
+  .stack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  .stack-card {
+    border: 1px solid var(--slate-200);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .stack-card-header {
+    background: var(--grad);
+    color: #fff;
+    padding: 10px 16px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .stack-card-body { padding: 14px 16px; }
+  .stack-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0; border-bottom: 1px solid var(--slate-100);
+    font-size: 13px; color: var(--slate-700);
+  }
+  .stack-item:last-child { border-bottom: none; }
+  .stack-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-400); flex-shrink: 0; }
+
+  /* ── Processo Kanban visual ── */
+  .kanban { display: flex; gap: 10px; margin-top: 8px; }
+  .kanban-col {
+    flex: 1;
+    border: 1px solid var(--slate-200);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .kanban-col-header {
+    padding: 8px 12px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .kanban-col-header.pending  { background: #fef3c7; color: #92400e; }
+  .kanban-col-header.progress { background: #dbeafe; color: #1e40af; }
+  .kanban-col-header.done     { background: #dcfce7; color: #166534; }
+  .kanban-col-header.cancelled{ background: #f1f5f9; color: #64748b; }
+  .kanban-card {
+    margin: 8px;
+    background: #fff;
+    border: 1px solid var(--slate-200);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 11.5px; color: var(--slate-700);
+    line-height: 1.4;
+  }
+  .kanban-card strong { display: block; font-size: 12px; color: var(--slate-800); margin-bottom: 2px; }
+  .kanban-card .date { font-size: 10.5px; color: var(--slate-400); margin-top: 4px; }
+
+  /* ── Fluxo de acesso ── */
+  .flow { display: flex; align-items: center; gap: 0; margin-top: 12px; }
+  .flow-step {
+    flex: 1;
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
+    font-size: 12px;
+  }
+  .flow-step .step-icon { font-size: 22px; margin-bottom: 6px; }
+  .flow-step h4 { font-size: 12.5px; font-weight: 600; color: var(--slate-800); }
+  .flow-step p  { font-size: 11px; color: var(--slate-500); margin-top: 3px; }
+  .flow-arrow {
+    color: var(--blue-400);
+    font-size: 20px;
+    margin: 0 6px;
+    flex-shrink: 0;
+  }
+
+  /* ── LGPD / Segurança ── */
+  .security-list { list-style: none; margin-top: 8px; }
+  .security-list li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 0; border-bottom: 1px solid var(--slate-100);
+    font-size: 13.5px; color: var(--slate-700); line-height: 1.5;
+  }
+  .security-list li:last-child { border-bottom: none; }
+  .check-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #dcfce7; color: #166534;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ── Rodapé de página ── */
+  .page-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--slate-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--slate-400);
+  }
+  .page-footer .brand { font-weight: 600; color: var(--blue-600); }
+
+  /* ── Print ── */
+  @media print {
+    .page { page-break-after: always; }
+    .page:last-child { page-break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════
+     CAPA
+════════════════════════════ -->
+<div class="page">
+  <div class="cover">
+    <div class="cover-logo">
+      <svg width="56" height="62" viewBox="0 0 397 436" fill="white">
+        <g transform="translate(0,436) scale(0.1,-0.1)" fill="white" stroke="none">
+          <path d="M1285 3959 c-184 -10 -301 -62 -418 -189 -67 -72 -98 -125 -134 -226 l-28 -79 0 -835 c0 -827 0 -835 20 -838 21 -3 65 34 427 355 l207 184 3 459 3 458 24 26 24 26 490 0 c528 0 553 -2 657 -55 124 -63 240 -202 282 -338 49 -159 19 -346 -80 -498 -94 -143 -219 -226 -384 -253 -31 -6 -52 -25 -159 -149 -68 -78 -190 -217 -272 -309 -95 -108 -147 -174 -145 -185 3 -17 26 -18 313 -21 182 -2 344 2 393 8 387 51 740 311 923 681 88 179 129 358 129 570 0 497 -267 926 -689 1109 -95 41 -198 71 -316 91 -76 13 -1055 19 -1270 8z"/>
+          <path d="M1702 2283 c-25 -5 -33 -12 -608 -560 -210 -200 -385 -370 -388 -379 -8 -20 -8 -958 0 -978 16 -43 57 -17 339 209 154 124 287 235 295 247 11 16 15 63 16 217 0 108 2 206 2 218 2 21 160 213 406 494 134 151 395 437 425 463 29 26 27 54 -5 66 -24 10 -435 12 -482 3z"/>
+        </g>
+      </svg>
+    </div>
+
+    <h1>Presteza Contábil</h1>
+    <p class="subtitle">Sistema de Gestão Contábil Digital</p>
+    <div class="cover-divider"></div>
+
+    <div class="cover-tags">
+      <span class="cover-tag">⚡ Tempo Real</span>
+      <span class="cover-tag">📱 App Mobile (PWA)</span>
+      <span class="cover-tag">🔒 Seguro & LGPD</span>
+      <span class="cover-tag">🌙 Modo Escuro</span>
+      <span class="cover-tag">🖥️ Multi-plataforma</span>
+    </div>
+
+    <p class="cover-footer">Junho de 2026 · Presteza Contábil · Confidencial</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     PÁGINA 2 — VISÃO GERAL
+════════════════════════════ -->
+<div class="page">
+<div class="inner">
+  <div class="page-header">
+    <div class="page-header-icon">
+      <svg width="22" height="22" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </div>
+    <div>
+      <h2>Visão Geral do Sistema</h2>
+      <p class="sub">Plataforma completa de gestão contábil para escritórios e clientes</p>
+    </div>
+  </div>
+
+  <p class="body">
+    O <strong>Presteza Contábil</strong> é uma plataforma digital que conecta escritórios de contabilidade
+    aos seus clientes de forma eficiente e segura. Com interfaces dedicadas para cada perfil de acesso,
+    o sistema centraliza processos, documentos, comunicação e relatórios em um único lugar —
+    acessível pelo navegador ou como aplicativo instalado no celular.
+  </p>
+
+  <p class="section-title" style="margin-top:24px">Funcionalidades Principais</p>
+
+  <div class="feature-grid">
+    <div class="feat-card">
+      <div class="feat-icon blue">💬</div>
+      <div>
+        <h3>Chat em Tempo Real</h3>
+        <p>Comunicação direta entre escritório e clientes via WebSocket, com histórico completo de conversas.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon green">📁</div>
+      <div>
+        <h3>Gestão de Documentos</h3>
+        <p>Upload com drag &amp; drop, download e exclusão de documentos organizados por cliente.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon amber">📋</div>
+      <div>
+        <h3>Kanban de Processos</h3>
+        <p>Acompanhamento visual de processos contábeis com status Pendente, Em Andamento, Concluído e Cancelado.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon purple">👥</div>
+      <div>
+        <h3>Gestão de Clientes</h3>
+        <p>CRUD completo de clientes com busca, criação, edição e exclusão diretamente pelo painel admin.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon teal">🔔</div>
+      <div>
+        <h3>Notificações em Tempo Real</h3>
+        <p>Alertas automáticos para novas mensagens, documentos e atualizações de processos via WebSocket.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon rose">📱</div>
+      <div>
+        <h3>App Mobile (PWA)</h3>
+        <p>Instale o sistema na tela inicial do celular como um app nativo, com acesso offline a conteúdo cacheado.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:20px">
+    <h3>🚀 Dois perfis de acesso, uma plataforma integrada</h3>
+    <p>
+      O sistema oferece interfaces distintas para o <strong>escritório (Admin)</strong> — com visão completa de todos os clientes,
+      processos e documentos — e para o <strong>cliente</strong> — com acesso ao seu próprio portal, mensagens e acompanhamento
+      de serviços. Ambos compartilham o mesmo banco de dados em tempo real.
+    </p>
+  </div>
+
+  <div class="page-footer">
+    <span class="brand">Presteza Contábil</span>
+    <span>Visão Geral · Pág. 2</span>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════
+     PÁGINA 3 — PORTAL ADMIN
+════════════════════════════ -->
+<div class="page">
+<div class="inner">
+  <div class="page-header">
+    <div class="page-header-icon">
+      <svg width="22" height="22" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    </div>
+    <div>
+      <h2>Portal do Escritório</h2>
+      <p class="sub">Interface completa para a equipe administrativa</p>
+    </div>
+  </div>
+
+  <!-- Dashboard KPIs -->
+  <p class="section-title">Dashboard — Visão Geral em Tempo Real</p>
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <span class="kpi-num">↑</span>
+      <span class="kpi-label">Total de Clientes</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">⚡</span>
+      <span class="kpi-label">Processos Ativos</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">📄</span>
+      <span class="kpi-label">Documentos</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">✉</span>
+      <span class="kpi-label">Mensagens Novas</span>
+    </div>
+  </div>
+
+  <!-- Módulos Admin -->
+  <p class="section-title" style="margin-top:22px">Módulos Disponíveis</p>
+  <div class="feature-grid" style="gap:12px">
+    <div class="feat-card">
+      <div class="feat-icon blue">📊</div>
+      <div>
+        <h3>Dashboard</h3>
+        <p>KPIs consolidados, processos recentes e atalhos para as principais funções do escritório.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon purple">👥</div>
+      <div>
+        <h3>Clientes</h3>
+        <p>Listagem com busca, criação de novos clientes, edição de dados e exclusão com confirmação.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon amber">📋</div>
+      <div>
+        <h3>Processos (Kanban)</h3>
+        <p>Quadro visual com colunas por status. Arraste e crie processos associados a cada cliente.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon green">📁</div>
+      <div>
+        <h3>Documentos</h3>
+        <p>Upload via drag &amp; drop, tabela com filtros, download direto e exclusão de arquivos.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon teal">💬</div>
+      <div>
+        <h3>Chat</h3>
+        <p>Lista de conversas por cliente com mensagens em tempo real. Notificação de novas mensagens.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon indigo">⚙️</div>
+      <div>
+        <h3>Configurações</h3>
+        <p>Atualização de dados de perfil e alteração de senha com confirmação de segurança.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kanban visual -->
+  <p class="section-title" style="margin-top:18px">Exemplo — Quadro Kanban de Processos</p>
+  <div class="kanban">
+    <div class="kanban-col">
+      <div class="kanban-col-header pending">Pendente</div>
+      <div class="kanban-card">
+        <strong>IRPJ 2025</strong>
+        Declaração Imposto de Renda PJ
+        <div class="date">Venc. 30/06/2026</div>
+      </div>
+    </div>
+    <div class="kanban-col">
+      <div class="kanban-col-header progress">Em Andamento</div>
+      <div class="kanban-card">
+        <strong>Folha Maio</strong>
+        Processamento folha de pagamento
+        <div class="date">Venc. 10/06/2026</div>
+      </div>
+    </div>
+    <div class="kanban-col">
+      <div class="kanban-col-header done">Concluído</div>
+      <div class="kanban-card">
+        <strong>SPED Abril</strong>
+        Escrituração fiscal digital
+        <div class="date">Concluído em 05/05/2026</div>
+      </div>
+    </div>
+    <div class="kanban-col">
+      <div class="kanban-col-header cancelled">Cancelado</div>
+      <div class="kanban-card">
+        <strong>Revisão BL</strong>
+        Revisão balanço patrimonial
+        <div class="date">Cancelado a pedido</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span class="brand">Presteza Contábil</span>
+    <span>Portal do Escritório · Pág. 3</span>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════
+     PÁGINA 4 — PORTAL CLIENTE
+════════════════════════════ -->
+<div class="page">
+<div class="inner">
+  <div class="page-header">
+    <div class="page-header-icon">
+      <svg width="22" height="22" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <div>
+      <h2>Portal do Cliente</h2>
+      <p class="sub">Acesso personalizado ao escritório contábil de qualquer lugar</p>
+    </div>
+  </div>
+
+  <p class="body">
+    Cada cliente possui um acesso exclusivo ao seu portal, onde pode acompanhar seus processos,
+    trocar documentos e se comunicar diretamente com a equipe do escritório — tudo em tempo real,
+    pelo navegador ou pelo app instalado no celular.
+  </p>
+
+  <p class="section-title" style="margin-top:20px">Funcionalidades do Portal do Cliente</p>
+  <div class="feature-grid" style="gap:12px">
+    <div class="feat-card">
+      <div class="feat-icon blue">🏠</div>
+      <div>
+        <h3>Dashboard Pessoal</h3>
+        <p>Resumo dos serviços ativos, processos recentes e acessos rápidos às principais funcionalidades.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon teal">💬</div>
+      <div>
+        <h3>Mensagens</h3>
+        <p>Canal direto com o escritório. Envie dúvidas e receba respostas em tempo real, com histórico completo.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon green">📁</div>
+      <div>
+        <h3>Meus Documentos</h3>
+        <p>Visualize e baixe todos os documentos compartilhados pelo escritório. Grid de cards com busca rápida.</p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon amber">📋</div>
+      <div>
+        <h3>Meus Processos</h3>
+        <p>Acompanhe o andamento de cada serviço contratado, com status atualizado pelo escritório em tempo real.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fluxo de acesso -->
+  <p class="section-title" style="margin-top:22px">Fluxo de Acesso</p>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="step-icon">🔗</div>
+      <h4>Recebe link</h4>
+      <p>Escritório compartilha o acesso ao sistema</p>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="step-icon">🔑</div>
+      <h4>Login seguro</h4>
+      <p>E-mail e senha com JWT</p>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="step-icon">📱</div>
+      <h4>Instala o app</h4>
+      <p>PWA na tela inicial</p>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="step-icon">✅</div>
+      <h4>Usa o portal</h4>
+      <p>Acesso a qualquer momento</p>
+    </div>
+  </div>
+
+  <!-- Status de processos -->
+  <p class="section-title" style="margin-top:22px">Status de Processos Visíveis ao Cliente</p>
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:4px">
+    <span class="badge pending">⏳ Pendente</span>
+    <span class="badge progress">⚡ Em Andamento</span>
+    <span class="badge done">✓ Concluído</span>
+    <span class="badge cancelled">✗ Cancelado</span>
+  </div>
+
+  <div class="highlight-box" style="margin-top:20px">
+    <h3>📲 Experiência mobile-first</h3>
+    <p>
+      O portal do cliente é totalmente responsivo e otimizado para celular. Após instalar o PWA,
+      o cliente acessa o escritório com um toque — sem precisar abrir o navegador ou digitar endereços.
+      Notificações automáticas avisam sobre novas mensagens e atualizações de processos.
+    </p>
+  </div>
+
+  <div class="page-footer">
+    <span class="brand">Presteza Contábil</span>
+    <span>Portal do Cliente · Pág. 4</span>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════
+     PÁGINA 5 — RECURSOS ESPECIAIS
+════════════════════════════ -->
+<div class="page">
+<div class="inner">
+  <div class="page-header">
+    <div class="page-header-icon">
+      <svg width="22" height="22" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <div>
+      <h2>Recursos Especiais</h2>
+      <p class="sub">Tecnologias e funcionalidades que fazem a diferença</p>
+    </div>
+  </div>
+
+  <div class="feature-grid" style="gap:14px">
+    <div class="feat-card">
+      <div class="feat-icon rose">📱</div>
+      <div>
+        <h3>PWA — App Instalável</h3>
+        <p>
+          O sistema funciona como um aplicativo nativo no Android e iOS.
+          Após instalação via "Adicionar à tela inicial", o app abre instantaneamente,
+          exibe uma tela de splash animada com o logo e funciona offline com conteúdo cacheado.
+        </p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon teal">⚡</div>
+      <div>
+        <h3>Comunicação em Tempo Real</h3>
+        <p>
+          Chat e notificações usam <strong>WebSocket (Socket.IO)</strong> para entrega instantânea
+          de mensagens e alertas, sem necessidade de atualizar a página. A conexão é estabelecida
+          automaticamente ao fazer login.
+        </p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon indigo">🌙</div>
+      <div>
+        <h3>Modo Escuro</h3>
+        <p>
+          Alternância entre modo claro e escuro disponível em qualquer tela, com preferência
+          salva automaticamente. Toda a interface — sidebar, topbar, cards e modais —
+          adapta as cores sem recarregar a página.
+        </p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon sky">🔔</div>
+      <div>
+        <h3>Notificações Inteligentes</h3>
+        <p>
+          Sino de notificações no topo da tela com contador de não lidas.
+          Clique em uma notificação para navegar diretamente para a tela relevante
+          (chat, documentos ou processos). "Marcar todas como lidas" em um clique.
+        </p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon green">🖥️</div>
+      <div>
+        <h3>Interface Responsiva</h3>
+        <p>
+          Sidebar colapsável no desktop, menu hambúrguer no mobile.
+          Layout fluido que se adapta de 320px (celular pequeno) até monitores wide.
+          Componentes acessíveis com áreas de toque mínimas de 44px.
+        </p>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon amber">🚀</div>
+      <div>
+        <h3>Performance e SSR</h3>
+        <p>
+          Renderização híbrida Server-Side (SSR) + Client-Side. Primeira carga com HTML
+          completo do servidor, navegação subsequente via SPA sem recarregar.
+          Otimizado para conexões lentas e dispositivos de entrada.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Splash screen -->
+  <p class="section-title" style="margin-top:20px">Experiência de Abertura do App (PWA)</p>
+  <div style="display:flex; gap:16px; margin-top:8px; align-items:center">
+    <div style="flex:1; background:linear-gradient(135deg,#60a5fa,#1e40af); border-radius:16px; padding:28px; text-align:center; color:white">
+      <div style="font-size:36px; margin-bottom:8px">P</div>
+      <div style="font-size:13px; font-weight:600; letter-spacing:2px; opacity:0.9">PRESTEZA CONTÁBIL</div>
+      <div style="font-size:11px; opacity:0.6; margin-top:6px">Animação de abertura · 2 segundos</div>
+    </div>
+    <div style="flex:2">
+      <ul style="list-style:none; font-size:13px; color:var(--slate-600); line-height:1.8">
+        <li>→ Tela de splash com logo animado (pop + fade)</li>
+        <li>→ Gradiente azul igual ao ícone do app</li>
+        <li>→ Exibida uma vez por sessão (sessionStorage)</li>
+        <li>→ Não repete em navegações internas</li>
+        <li>→ Dialog de instalação ao abrir no browser</li>
+        <li>→ Detecção automática se app já instalado</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span class="brand">Presteza Contábil</span>
+    <span>Recursos Especiais · Pág. 5</span>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════
+     PÁGINA 6 — STACK TÉCNICO
+════════════════════════════ -->
+<div class="page">
+<div class="inner">
+  <div class="page-header">
+    <div class="page-header-icon">
+      <svg width="22" height="22" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+    </div>
+    <div>
+      <h2>Stack Tecnológico</h2>
+      <p class="sub">Tecnologias modernas escolhidas para escala, segurança e manutenibilidade</p>
+    </div>
+  </div>
+
+  <div class="stack-grid">
+    <div class="stack-card">
+      <div class="stack-card-header">🖥️ Frontend (Web)</div>
+      <div class="stack-card-body">
+        <div class="stack-item"><div class="stack-dot"></div><strong>Nuxt 3</strong> — Framework Vue com SSR híbrido</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>Vue 3</strong> — Composition API, Reactivity</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>Pinia</strong> — Gerenciamento de estado</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>Tailwind CSS</strong> — Estilização utilitária</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>shadcn-nuxt</strong> — Componentes de UI</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>Lucide Vue</strong> — Ícones SVG</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>@vite-pwa/nuxt</strong> — Service Worker / PWA</div>
+      </div>
+    </div>
+
+    <div class="stack-card">
+      <div class="stack-card-header">⚙️ Backend (API)</div>
+      <div class="stack-card-body">
+        <div class="stack-item"><div class="stack-dot"></div><strong>NestJS 10</strong> — Framework Node.js modular</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>TypeScript</strong> — Tipagem estática end-to-end</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>Prisma 5</strong> — ORM com migrações</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>Socket.IO</strong> — WebSocket em tempo real</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>Passport JWT</strong> — Autenticação segura</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>Swagger</strong> — Documentação da API</div>
+      </div>
+    </div>
+
+    <div class="stack-card">
+      <div class="stack-card-header">🗄️ Banco de Dados</div>
+      <div class="stack-card-body">
+        <div class="stack-item"><div class="stack-dot"></div><strong>PostgreSQL</strong> — Banco relacional robusto</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>Neon</strong> — PostgreSQL serverless na nuvem</div>
+        <div class="stack-item"><div class="stack-dot"></div>Connection pooling para alta disponibilidade</div>
+        <div class="stack-item"><div class="stack-dot"></div>Backups automáticos e escalabilidade</div>
+      </div>
+    </div>
+
+    <div class="stack-card">
+      <div class="stack-card-header">☁️ Infraestrutura</div>
+      <div class="stack-card-body">
+        <div class="stack-item"><div class="stack-dot"></div><strong>Vercel</strong> — Deploy do frontend (SSR)</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>Railway</strong> — Deploy da API NestJS</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>pnpm Workspaces</strong> — Monorepo</div>
+        <div class="stack-item"><div class="stack-dot"></div><strong>@presteza/types</strong> — Tipos compartilhados</div>
+        <div class="stack-item"><div class="stack-dot"></div>CI/CD automático via GitHub</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arquitetura -->
+  <p class="section-title" style="margin-top:22px">Arquitetura do Monorepo</p>
+  <div style="background:var(--slate-50); border:1px solid var(--slate-200); border-radius:12px; padding:16px 20px; font-family:monospace; font-size:12px; color:var(--slate-600); line-height:1.8">
+    <span style="color:var(--blue-600); font-weight:700">presteza-contabil/</span><br>
+    &nbsp;&nbsp;<span style="color:var(--slate-500)">├── apps/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--blue-700)">├── api/</span>&nbsp;&nbsp;<span style="color:var(--slate-400)">← NestJS · porta 3001 · Railway</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--blue-700)">└── web/</span>&nbsp;&nbsp;<span style="color:var(--slate-400)">← Nuxt 3 · porta 3000 · Vercel</span><br>
+    &nbsp;&nbsp;<span style="color:var(--slate-500)">└── packages/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--blue-700)">└── types/</span>&nbsp;<span style="color:var(--slate-400)">← Tipos TypeScript compartilhados (CJS + ESM)</span>
+  </div>
+
+  <div class="page-footer">
+    <span class="brand">Presteza Contábil</span>
+    <span>Stack Tecnológico · Pág. 6</span>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════
+     PÁGINA 7 — SEGURANÇA & LGPD
+════════════════════════════ -->
+<div class="page">
+<div class="inner">
+  <div class="page-header">
+    <div class="page-header-icon">
+      <svg width="22" height="22" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div>
+      <h2>Segurança &amp; Conformidade</h2>
+      <p class="sub">Proteção de dados e conformidade com a legislação brasileira</p>
+    </div>
+  </div>
+
+  <p class="section-title">Mecanismos de Segurança</p>
+  <ul class="security-list">
+    <li>
+      <div class="check-icon">✓</div>
+      <div>
+        <strong>Autenticação JWT (JSON Web Token)</strong><br>
+        Tokens assinados com prazo de expiração. Cada requisição à API é validada pelo token,
+        eliminando sessões persistentes no servidor. Armazenado de forma segura no localStorage do cliente.
+      </div>
+    </li>
+    <li>
+      <div class="check-icon">✓</div>
+      <div>
+        <strong>Controle de Acesso por Perfil (RBAC)</strong><br>
+        Dois roles distintos: <strong>ADMIN</strong> (escritório) e <strong>CLIENT</strong> (cliente).
+        Middleware de autenticação bloqueia acesso às rotas não autorizadas tanto no frontend quanto na API,
+        com redirecionamento automático conforme o perfil.
+      </div>
+    </li>
+    <li>
+      <div class="check-icon">✓</div>
+      <div>
+        <strong>HTTPS em todas as conexões</strong><br>
+        Frontend (Vercel) e API (Railway) servidos exclusivamente via HTTPS com certificados TLS automáticos.
+        WebSocket também opera sobre WSS (WebSocket Secure).
+      </div>
+    </li>
+    <li>
+      <div class="check-icon">✓</div>
+      <div>
+        <strong>Senhas com hash bcrypt</strong><br>
+        Nenhuma senha é armazenada em texto puro. O bcrypt aplica salt e hash antes de persistir no banco,
+        tornando inviável a recuperação mesmo em caso de vazamento do banco de dados.
+      </div>
+    </li>
+  </ul>
+
+  <p class="section-title" style="margin-top:18px">Conformidade com a LGPD</p>
+  <ul class="security-list">
+    <li>
+      <div class="check-icon">✓</div>
+      <div>
+        <strong>Aviso de tratamento de dados na tela de login</strong><br>
+        Texto informativo sobre o tratamento de dados pessoais para prestação dos serviços contábeis,
+        com referência explícita à Lei nº 13.709/2018 (LGPD) e canal de contato para dúvidas.
+      </div>
+    </li>
+    <li>
+      <div class="check-icon">✓</div>
+      <div>
+        <strong>Dados pessoais acessíveis apenas pelo titular</strong><br>
+        Cada cliente visualiza exclusivamente seus próprios documentos, processos e mensagens.
+        O acesso cruzado entre clientes é bloqueado em nível de API.
+      </div>
+    </li>
+    <li>
+      <div class="check-icon">✓</div>
+      <div>
+        <strong>Banco de dados em infraestrutura certificada</strong><br>
+        PostgreSQL hospedado no Neon com backups automáticos, criptografia em repouso e
+        conformidade com padrões de segurança internacionais (SOC 2).
+      </div>
+    </li>
+  </ul>
+
+  <div class="page-footer">
+    <span class="brand">Presteza Contábil</span>
+    <span>Segurança &amp; Conformidade · Pág. 7</span>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════
+     PÁGINA 8 — ENCERRAMENTO
+════════════════════════════ -->
+<div class="page">
+  <div class="cover" style="justify-content:center; gap:0">
+    <div style="margin-bottom:32px">
+      <svg width="72" height="72" viewBox="0 0 397 436" fill="white" opacity="0.9">
+        <g transform="translate(0,436) scale(0.1,-0.1)" fill="white" stroke="none">
+          <path d="M1285 3959 c-184 -10 -301 -62 -418 -189 -67 -72 -98 -125 -134 -226 l-28 -79 0 -835 c0 -827 0 -835 20 -838 21 -3 65 34 427 355 l207 184 3 459 3 458 24 26 24 26 490 0 c528 0 553 -2 657 -55 124 -63 240 -202 282 -338 49 -159 19 -346 -80 -498 -94 -143 -219 -226 -384 -253 -31 -6 -52 -25 -159 -149 -68 -78 -190 -217 -272 -309 -95 -108 -147 -174 -145 -185 3 -17 26 -18 313 -21 182 -2 344 2 393 8 387 51 740 311 923 681 88 179 129 358 129 570 0 497 -267 926 -689 1109 -95 41 -198 71 -316 91 -76 13 -1055 19 -1270 8z"/>
+          <path d="M1702 2283 c-25 -5 -33 -12 -608 -560 -210 -200 -385 -370 -388 -379 -8 -20 -8 -958 0 -978 16 -43 57 -17 339 209 154 124 287 235 295 247 11 16 15 63 16 217 0 108 2 206 2 218 2 21 160 213 406 494 134 151 395 437 425 463 29 26 27 54 -5 66 -24 10 -435 12 -482 3z"/>
+        </g>
+      </svg>
+    </div>
+
+    <h1 style="font-size:36px">Obrigado!</h1>
+    <p class="subtitle" style="max-width:340px; margin:0 auto">
+      O Presteza Contábil está em constante evolução,<br>
+      com novos módulos e funcionalidades sendo desenvolvidos.
+    </p>
+    <div class="cover-divider" style="margin:32px auto"></div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; align-items:center">
+      <p style="font-size:14px; opacity:0.85; font-weight:500">Contato &amp; Suporte</p>
+      <a style="color:white; font-size:15px; text-decoration:none; opacity:0.9" href="mailto:silasribeiro11@gmail.com">
+        📧 silasribeiro11@gmail.com
+      </a>
+    </div>
+
+    <div style="margin-top:48px; display:flex; gap:16px; flex-wrap:wrap; justify-content:center">
+      <div style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:16px 24px; text-align:center; min-width:130px">
+        <div style="font-size:24px; font-weight:800; letter-spacing:-1px">v1.0</div>
+        <div style="font-size:11px; opacity:0.7; margin-top:2px">Versão atual</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:16px 24px; text-align:center; min-width:130px">
+        <div style="font-size:24px; font-weight:800; letter-spacing:-1px">7+</div>
+        <div style="font-size:11px; opacity:0.7; margin-top:2px">Módulos disponíveis</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:16px 24px; text-align:center; min-width:130px">
+        <div style="font-size:24px; font-weight:800; letter-spacing:-1px">2026</div>
+        <div style="font-size:11px; opacity:0.7; margin-top:2px">Lançamento</div>
+      </div>
+    </div>
+
+    <p class="cover-footer" style="position:absolute; bottom:32px; left:0; right:0">
+      Presteza Contábil · Sistema de Gestão Contábil Digital · Todos os direitos reservados
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { Download, Share, PlusSquare, CheckCircle } from 'lucide-vue-next'
+import { Download, Share, PlusSquare, MoreVertical } from 'lucide-vue-next'
 
-// v3 — modal persistente
-const INSTALL_KEY = 'presteza_pwa_dismissed_v3'
+// v4 — fallback corrigido: "beforeinstallprompt" não disparar ≠ app instalado
+const INSTALL_KEY = 'presteza_pwa_dismissed_v4'
 
 const { $pwaInstall: $pwa } = useNuxtApp() as any
 
 const showModal = ref(false)
 const showIosInstructions = ref(false)
-const showAlreadyInstalled = ref(false)
+const showManualInstall = ref(false)
 const installing = ref(false)
 
 const isIos = computed(() => {
@@ -65,14 +65,15 @@ async function handleInstall() {
     return
   }
 
-  // beforeinstallprompt não disparou: app provavelmente já instalado
-  showAlreadyInstalled.value = true
+  // beforeinstallprompt não disparou: Chrome ainda não liberou instalação automática.
+  // Mostra instruções manuais em vez de assumir que o app está instalado.
+  showManualInstall.value = true
 }
 
 function dismiss() {
   showModal.value = false
   showIosInstructions.value = false
-  showAlreadyInstalled.value = false
+  showManualInstall.value = false
   localStorage.setItem(INSTALL_KEY, '1')
 }
 </script>
@@ -81,7 +82,7 @@ function dismiss() {
   <!-- Modal principal de instalação -->
   <Transition name="fade">
     <div
-      v-if="showModal && !showIosInstructions && !showAlreadyInstalled"
+      v-if="showModal && !showIosInstructions && !showManualInstall"
       class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-6"
     >
       <div class="bg-card border border-border rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
@@ -120,38 +121,40 @@ function dismiss() {
     </div>
   </Transition>
 
-  <!-- App já instalado (beforeinstallprompt não disparou) -->
+  <!-- Instalação manual (Chrome ainda não liberou beforeinstallprompt) -->
   <Transition name="fade">
     <div
-      v-if="showAlreadyInstalled"
-      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-6"
+      v-if="showManualInstall"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center p-4"
     >
-      <div class="bg-card border border-border rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
-        <div class="flex justify-center pt-8">
-          <img src="/pwa_icon_192.png" alt="Presteza" class="w-20 h-20 rounded-2xl shadow-lg" />
+      <div class="bg-card border border-border rounded-2xl p-6 w-full sm:max-w-sm shadow-2xl">
+        <div class="flex items-center gap-3 mb-5">
+          <img src="/pwa_icon_192.png" alt="Presteza" class="w-12 h-12 rounded-xl" />
+          <div>
+            <h3 class="font-semibold text-foreground">Adicionar à tela inicial</h3>
+            <p class="text-xs text-muted-foreground">Siga os passos no Chrome</p>
+          </div>
         </div>
-
-        <div class="flex justify-center mt-5">
-          <CheckCircle class="w-9 h-9 text-green-500" stroke-width="1.75" />
-        </div>
-
-        <div class="text-center px-6 mt-3">
-          <h2 class="text-xl font-bold text-foreground">App já instalado</h2>
-          <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
-            O Presteza Contábil já está instalado no seu dispositivo.
-            Procure pelo ícone na sua tela inicial ou gaveta de apps.
-          </p>
-        </div>
-
-        <div class="px-6 pb-6 mt-6">
-          <button
-            class="w-full bg-primary text-primary-foreground font-semibold rounded-xl py-3.5 text-sm
-                   hover:opacity-90 transition-opacity"
-            @click="dismiss"
-          >
-            Entendido
-          </button>
-        </div>
+        <ol class="space-y-4 text-sm text-foreground">
+          <li class="flex items-start gap-3">
+            <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</span>
+            <span>Toque no menu <MoreVertical class="inline w-4 h-4 mx-0.5 -mt-0.5" /> <strong>(três pontos)</strong> no canto superior direito do Chrome</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</span>
+            <span>Toque em <strong>"Adicionar à tela inicial"</strong></span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</span>
+            <span>Confirme tocando em <strong>"Adicionar"</strong></span>
+          </li>
+        </ol>
+        <button
+          class="w-full mt-6 bg-primary text-primary-foreground text-sm font-medium rounded-xl py-3 hover:opacity-90 transition-opacity"
+          @click="dismiss"
+        >
+          Entendido
+        </button>
       </div>
     </div>
   </Transition>
